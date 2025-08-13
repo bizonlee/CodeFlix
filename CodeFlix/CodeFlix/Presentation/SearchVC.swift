@@ -164,6 +164,7 @@ extension SearchVC: UITableViewDataSource {
         let film = films[indexPath.row]
         cell.titleLabel.text = film.title
         cell.releaseDateLabel.text = film.year != nil ? "\(film.year!)" : ""
+        cell.setImage(UIImage(named: "AppIcon"))
         return cell
     }
 }

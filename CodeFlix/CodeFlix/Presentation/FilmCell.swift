@@ -8,17 +8,45 @@
 import UIKit
 
 class FilmCell: UITableViewCell {
-    private let imageWidth: CGFloat = 100
-    private let imageHeight: CGFloat = 120
-    private let padding: CGFloat = 10
-    private let buttonSize: CGFloat = 24
 
-    var previewImageView: UIImageView!
-    var titleLabel: UILabel!
-    var releaseDateLabel: UILabel!
-    var ratingLabel: UILabel!
-    var descriptionLabel: UILabel!
-    var threeDotsButton: UIButton!
+    private enum Constants {
+        static let imageWidth: CGFloat = 100
+        static let imageHeight: CGFloat = 150
+        static let padding: CGFloat = 12
+        static let buttonSize: CGFloat = 24
+        static let textSpacing: CGFloat = 8
+        static let minCellHeight: CGFloat = 170
+    }
+
+    private lazy var previewImageView: UIImageView = {
+        let iv = UIImageView()
+        iv.contentMode = .scaleAspectFill
+        iv.clipsToBounds = true
+        iv.layer.cornerRadius = 6
+        iv.backgroundColor = .systemGray5
+        return iv
+    }()
+
+    lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.numberOfLines = 0
+        return label
+    }()
+
+    lazy var releaseDateLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = .secondaryLabel
+        return label
+    }()
+
+    private lazy var menuButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
+        button.tintColor = .label
+        return button
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -30,34 +58,9 @@ class FilmCell: UITableViewCell {
     }
 
     private func setupViews() {
-        previewImageView = UIImageView()
-        previewImageView.contentMode = .scaleAspectFit
-        contentView.addSubview(previewImageView)
-
-        titleLabel = UILabel()
-        titleLabel.font = .systemFont(ofSize: 17, weight: .bold)
-        titleLabel.numberOfLines = 0
-        contentView.addSubview(titleLabel)
-
-        descriptionLabel = UILabel()
-        descriptionLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        descriptionLabel.numberOfLines = 0
-        contentView.addSubview(descriptionLabel)
-
-        releaseDateLabel = UILabel()
-        releaseDateLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        releaseDateLabel.textColor = .secondaryLabel
-        contentView.addSubview(releaseDateLabel)
-
-        ratingLabel = UILabel()
-        ratingLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        ratingLabel.textColor = .secondaryLabel
-        contentView.addSubview(ratingLabel)
-
-        threeDotsButton = UIButton(type: .custom)
-        threeDotsButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
-        threeDotsButton.tintColor = .label
-        contentView.addSubview(threeDotsButton)
+        [previewImageView, titleLabel, releaseDateLabel, menuButton].forEach {
+            contentView.addSubview($0)
+        }
     }
 
     override func layoutSubviews() {
@@ -67,97 +70,76 @@ class FilmCell: UITableViewCell {
         let contentHeight = contentView.bounds.height
 
         previewImageView.frame = CGRect(
-            x: padding,
-            y: padding,
-            width: imageWidth,
-            height: imageHeight
+            x: Constants.padding,
+            y: Constants.padding,
+            width: Constants.imageWidth,
+            height: Constants.imageHeight
         )
 
-        threeDotsButton.frame = CGRect(
-            x: contentWidth - buttonSize - padding,
-            y: (contentHeight - buttonSize) / 2,
-            width: buttonSize,
-            height: buttonSize
+        menuButton.frame = CGRect(
+            x: contentWidth - Constants.buttonSize - Constants.padding,
+            y: (contentHeight - Constants.buttonSize) / 2,
+            width: Constants.buttonSize,
+            height: Constants.buttonSize
         )
 
-        let labelsX = previewImageView.frame.maxX + padding
-        let labelsWidth = contentWidth - labelsX - buttonSize - 2 * padding
+        // Text Content
+        let textX = previewImageView.frame.maxX + Constants.padding
+        let textWidth = contentWidth - textX - Constants.buttonSize - Constants.padding * 2
 
         let titleHeight = titleLabel.sizeThatFits(
-            CGSize(width: labelsWidth, height: .greatestFiniteMagnitude)
-        ).height
-
-        let descriptionHeight = descriptionLabel.sizeThatFits(
-            CGSize(width: labelsWidth, height: .greatestFiniteMagnitude)
+            CGSize(width: textWidth, height: .greatestFiniteMagnitude)
         ).height
 
         let dateHeight = releaseDateLabel.sizeThatFits(
-            CGSize(width: labelsWidth, height: .greatestFiniteMagnitude)
+            CGSize(width: textWidth, height: .greatestFiniteMagnitude)
         ).height
 
-        let ratingHeight = ratingLabel.sizeThatFits(
-            CGSize(width: labelsWidth, height: .greatestFiniteMagnitude)
-        ).height
-
-        let totalTextHeight = titleHeight + descriptionHeight + dateHeight + ratingHeight + 3 * padding
-        var yOffset = max(padding, (contentHeight - totalTextHeight) / 2)
+        var yOffset = Constants.padding
 
         titleLabel.frame = CGRect(
-            x: labelsX,
+            x: textX,
             y: yOffset,
-            width: labelsWidth,
+            width: textWidth,
             height: titleHeight
         )
-        yOffset += titleHeight + padding
-
-        descriptionLabel.frame = CGRect(
-            x: labelsX,
-            y: yOffset,
-            width: labelsWidth,
-            height: descriptionHeight
-        )
-        yOffset += descriptionHeight + padding
+        yOffset += titleHeight + Constants.textSpacing
 
         releaseDateLabel.frame = CGRect(
-            x: labelsX,
+            x: textX,
             y: yOffset,
-            width: labelsWidth,
+            width: textWidth,
             height: dateHeight
-        )
-        yOffset += dateHeight + padding
-
-        ratingLabel.frame = CGRect(
-            x: labelsX,
-            y: yOffset,
-            width: labelsWidth,
-            height: ratingHeight
         )
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        let labelsWidth = size.width - imageWidth - buttonSize - 3 * padding
+        let textWidth = size.width - Constants.imageWidth - Constants.buttonSize - 3 * Constants.padding
 
         let titleHeight = titleLabel.sizeThatFits(
-            CGSize(width: labelsWidth, height: .greatestFiniteMagnitude)
-        ).height
-
-        let descriptionHeight = descriptionLabel.sizeThatFits(
-            CGSize(width: labelsWidth, height: .greatestFiniteMagnitude)
+            CGSize(width: textWidth, height: .greatestFiniteMagnitude)
         ).height
 
         let dateHeight = releaseDateLabel.sizeThatFits(
-            CGSize(width: labelsWidth, height: .greatestFiniteMagnitude)
+            CGSize(width: textWidth, height: .greatestFiniteMagnitude)
         ).height
 
-        let ratingHeight = ratingLabel.sizeThatFits(
-            CGSize(width: labelsWidth, height: .greatestFiniteMagnitude)
-        ).height
-
-        let totalHeight = max(
-            imageHeight + 2 * padding,
-            titleHeight + descriptionHeight + dateHeight + ratingHeight + 4 * padding
+        let calculatedHeight = max(
+            Constants.imageHeight + 2 * Constants.padding,
+            titleHeight + dateHeight + 3 * Constants.textSpacing
         )
 
-        return CGSize(width: size.width, height: totalHeight)
+        return CGSize(width: size.width, height: max(calculatedHeight, Constants.minCellHeight))
+    }
+
+    func setImage(_ image: UIImage?) {
+        previewImageView.image = image ?? UIImage(named: "placeholder")
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        previewImageView.image = nil
+        titleLabel.text = nil
+        releaseDateLabel.text = nil
     }
 }
