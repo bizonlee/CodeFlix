@@ -10,7 +10,12 @@ import UIKit
 final class SearchVC: UIViewController, UITableViewDelegate {
 
     private let viewModel = SearchViewModel()
-    private var films: [Film] = []
+    private var films: [Film] = [] {
+        didSet {
+            tableView.reloadData()
+            //noResultsLabel.isHidden = !films.isEmpty
+        }
+    }
     private var currentPage = 1
     private let pageSize = 10
     private var isLoading = false
@@ -21,6 +26,27 @@ final class SearchVC: UIViewController, UITableViewDelegate {
         let textField = UITextField()
         textField.placeholder = "Search..."
         textField.translatesAutoresizingMaskIntoConstraints = false
+
+        let placeholderColor = UIColor(white: 0.5, alpha: 1.0)
+
+        textField.layer.cornerRadius = 8.0
+        textField.layer.masksToBounds = true
+
+        textField.layer.borderWidth = 1.0
+        textField.layer.borderColor = UIColor(white: 0.3, alpha: 1.0).cgColor
+
+        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
+        searchIcon.tintColor = placeholderColor
+        searchIcon.contentMode = .scaleAspectFit
+
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 20))
+        searchIcon.frame = CGRect(x: 8, y: 0, width: 20, height: 20)
+        paddingView.addSubview(searchIcon)
+
+        textField.leftView = paddingView
+        textField.leftViewMode = .always
+        textField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
         return textField
     }()
 
@@ -39,6 +65,8 @@ final class SearchVC: UIViewController, UITableViewDelegate {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(FilmCell.self, forCellReuseIdentifier: "FilmCell")
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 200
         return tableView
     }()
 
@@ -60,6 +88,7 @@ final class SearchVC: UIViewController, UITableViewDelegate {
         viewModel.view = self
         setupViews()
         setupConstraints()
+        viewModel.fetchPopularFilms()
     }
 
     private func setupViews() {
@@ -134,7 +163,7 @@ extension SearchVC: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
         let film = films[indexPath.row]
         cell.titleLabel.text = film.title
-        cell.releaseDateLabel.text = film.year
+        cell.releaseDateLabel.text = film.year != nil ? "\(film.year!)" : ""
         return cell
     }
 }
