@@ -25,7 +25,7 @@ class FilmCell: UITableViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-    //test github
+    //test github2
 
     lazy var descriptionStackView: UIStackView = {
         let stackView = UIStackView()
