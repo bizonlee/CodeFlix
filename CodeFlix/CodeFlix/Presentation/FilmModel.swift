@@ -7,19 +7,18 @@
 
 struct Film: Decodable {
     let title: String
-    let year: String
+    let year: Int?
 
-    enum CodingKeys: String, CodingKey {
-        case title = "Title"
-        case year = "Year"
+    private enum CodingKeys: String, CodingKey {
+        case title = "name"
+        case year
     }
 }
 
 struct FilmsSearchResponse: Decodable {
-    let Search: [Film]
+    let films: [Film]
 
     enum CodingKeys: String, CodingKey {
-        case Search = "Search"
+        case films = "docs"
     }
 }
-

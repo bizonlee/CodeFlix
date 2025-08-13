@@ -20,13 +20,29 @@ class SearchViewModel {
             return
         }
 
-        searchService.searchMovies(query: query) { [weak self] result, error in
+        searchService.searchMovies(query: query) { [weak self] result in
             DispatchQueue.main.async {
-                if let error = error {
+                switch result {
+                case .success(let films):
+                    self?.films = films
+                case .failure(let error):
                     print("Search error: \(error.localizedDescription)")
                     self?.films = []
-                } else if let result = result {
-                    self?.films = result
+                }
+                self?.view?.updateUI(with: self?.films ?? [])
+            }
+        }
+    }
+
+    func fetchPopularFilms() {
+        searchService.fetchHighRatedMovies { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let films):
+                    self?.films = films
+                case .failure(let error):
+                    print("Popular films error: \(error.localizedDescription)")
+                    self?.films = []
                 }
                 self?.view?.updateUI(with: self?.films ?? [])
             }
