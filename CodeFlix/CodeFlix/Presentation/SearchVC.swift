@@ -10,7 +10,6 @@ import UIKit
 final class SearchVC: UIViewController, UITableViewDelegate {
 
     private let viewModel = SearchViewModel()
-    private var films: [Film] = []
     private var currentPage = 1
     private let pageSize = 10
     private var isLoading = false
@@ -21,6 +20,27 @@ final class SearchVC: UIViewController, UITableViewDelegate {
         let textField = UITextField()
         textField.placeholder = "Search..."
         textField.translatesAutoresizingMaskIntoConstraints = false
+
+        let placeholderColor = UIColor(white: 0.5, alpha: 1.0)
+
+        textField.layer.cornerRadius = 8.0
+        textField.layer.masksToBounds = true
+
+        textField.layer.borderWidth = 1.0
+        textField.layer.borderColor = UIColor(white: 0.3, alpha: 1.0).cgColor
+
+        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
+        searchIcon.tintColor = placeholderColor
+        searchIcon.contentMode = .scaleAspectFit
+
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 20))
+        searchIcon.frame = CGRect(x: 8, y: 0, width: 20, height: 20)
+        paddingView.addSubview(searchIcon)
+
+        textField.leftView = paddingView
+        textField.leftViewMode = .always
+        textField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
         return textField
     }()
 
@@ -39,19 +59,22 @@ final class SearchVC: UIViewController, UITableViewDelegate {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(FilmCell.self, forCellReuseIdentifier: "FilmCell")
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 200
         return tableView
     }()
 
-    private lazy var noResultsLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Нет результатов"
-        label.textColor = .white
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.isHidden = true
-        return label
-    }()
+    // TODO: - вернуть когда во вьюмодели добавится признак пустого поиска
+//    private lazy var noResultsLabel: UILabel = {
+//        let label = UILabel()
+//        label.text = "Нет результатов"
+//        label.textColor = .white
+//        label.textAlignment = .center
+//        label.font = UIFont.systemFont(ofSize: 16)
+//        label.translatesAutoresizingMaskIntoConstraints = false
+//        label.isHidden = true
+//        return label
+//    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,10 +83,10 @@ final class SearchVC: UIViewController, UITableViewDelegate {
         viewModel.view = self
         setupViews()
         setupConstraints()
+        viewModel.fetchPopularFilms()
     }
 
     private func setupViews() {
-       // view.addSubview(searchLabel)
         view.addSubview(searchTextField)
         view.addSubview(searchButton)
         view.addSubview(tableView)
@@ -84,30 +107,8 @@ final class SearchVC: UIViewController, UITableViewDelegate {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)//,
-
-//            noResultsLabel.topAnchor.constraint(equalTo: tableView.topAnchor),
-//            noResultsLabel.leadingAnchor.constraint(equalTo: tableView.leadingAnchor),
-//            noResultsLabel.trailingAnchor.constraint(equalTo: tableView.trailingAnchor),
-//            noResultsLabel.bottomAnchor.constraint(equalTo: tableView.bottomAnchor),
-//            noResultsLabel.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
-//            noResultsLabel.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
         ])
     }
-
-//    @objc
-//    private func searchButtonTapped() {
-////        searchTextField.resignFirstResponder()
-////        guard let query = searchTextField.text, !query.isEmpty else {
-////            showNoResultsMessage()
-////            return
-////        }
-////        self.query = query
-//        currentPage = 1
-//        isPullToRefresh = false
-//        hasMoreFilms = true
-////        presenter.searchButtonTapped(query: query)
-////        showLoadingIndicator()
-//    }
 
     @objc private func searchButtonTapped() {
         searchTextField.resignFirstResponder()
@@ -119,22 +120,22 @@ final class SearchVC: UIViewController, UITableViewDelegate {
     }
 
     func updateUI(with films: [Film]) {
-        self.films = films
+        let films = viewModel.films
         tableView.reloadData()
-        noResultsLabel.isHidden = !films.isEmpty
     }
 }
 
 extension SearchVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return films.count
+        return viewModel.films.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
-        let film = films[indexPath.row]
+        let film = viewModel.films[indexPath.row]
         cell.titleLabel.text = film.title
-        cell.releaseDateLabel.text = film.year
+        cell.releaseDateLabel.text = film.year != nil ? "\(film.year!)" : ""
+        cell.setImage(UIImage(named: "AppIcon"))
         return cell
     }
 }
