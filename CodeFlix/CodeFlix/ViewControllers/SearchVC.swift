@@ -78,7 +78,7 @@ final class SearchVC: UIViewController, UITableViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "CodeFlix"
+        title = "Поиск"
         view.backgroundColor = .white
         viewModel.view = self
         setupViews()
