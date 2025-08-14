@@ -5,13 +5,13 @@
 //  Created by Zhdanov Konstantin on 07.08.2025.
 //
 
-import Foundation
+import UIKit
 
 class SearchViewModel {
 
     weak var view: SearchVC?
     private let searchService = ApiService()
-    private var films: [Film] = []
+    var films: [Film] = []
 
     func searchFilms(query: String) {
         guard !query.isEmpty else {
@@ -43,6 +43,14 @@ class SearchViewModel {
                 case .failure(let error):
                     print("Popular films error: \(error.localizedDescription)")
                     self?.films = []
+
+                    let alert = UIAlertController(
+                        title: "Ошибка",
+                        message: "Не удалось загрузить популярные фильмы: \(error.localizedDescription)",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self?.view?.present(alert, animated: true)
                 }
                 self?.view?.updateUI(with: self?.films ?? [])
             }
