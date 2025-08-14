@@ -30,21 +30,22 @@ final class TabBarController: UITabBarController {
     }
     
     private func setupTabBars() {
-        let mainViewController = setupMainViewController()
-        let favoriteViewController = setupFavoriteViewController()
-        let searchViewController = setupSearchViewController()
-        let profileViewController = setupProfileViewController()
+        let mainViewController = makeMainViewController()
+        let favoriteViewController = makeFavoriteViewController()
+        let searchViewController = makeSearchViewController()
+        let profileViewController = makeProfileViewController()
         
         viewControllers = [
             mainViewController,
             favoriteViewController,
             searchViewController,
-            profileViewController]
+            profileViewController
+        ]
     }
     
     // MARK: - Setup View Controllers
     
-    private func setupMainViewController() -> UIViewController {
+    private func makeMainViewController() -> UIViewController {
         let mainViewController = MainVC()
         
         let navigationController = UINavigationController(rootViewController: mainViewController)
@@ -57,7 +58,7 @@ final class TabBarController: UITabBarController {
         return navigationController
     }
     
-    private func setupFavoriteViewController() -> UIViewController {
+    private func makeFavoriteViewController() -> UIViewController {
         let favoriteViewController = FavoriteVC()
         
         let navigationController = UINavigationController(rootViewController: favoriteViewController)
@@ -70,7 +71,7 @@ final class TabBarController: UITabBarController {
         return navigationController
     }
     
-    private func setupSearchViewController() -> UIViewController {
+    private func makeSearchViewController() -> UIViewController {
         let searchViewController = SearchVC()
         
         let navigationController = UINavigationController(rootViewController: searchViewController)
@@ -83,7 +84,7 @@ final class TabBarController: UITabBarController {
         return navigationController
     }
     
-    private func setupProfileViewController() -> UIViewController {
+    private func makeProfileViewController() -> UIViewController {
         let profileViewController = ProfileVC()
         
         let navigationController = UINavigationController(rootViewController: profileViewController)
