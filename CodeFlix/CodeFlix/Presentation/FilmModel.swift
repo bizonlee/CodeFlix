@@ -8,11 +8,17 @@
 struct Film: Decodable {
     let title: String
     let year: Int?
+    let poster: Poster?
 
     private enum CodingKeys: String, CodingKey {
         case title = "name"
         case year
+        case poster
     }
+}
+
+struct Poster: Decodable {
+    let url: String?
 }
 
 struct FilmsSearchResponse: Decodable {
