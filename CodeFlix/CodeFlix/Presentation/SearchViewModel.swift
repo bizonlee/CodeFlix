@@ -11,7 +11,9 @@ class SearchViewModel {
 
     weak var view: SearchVC?
     private let searchService = ApiService()
+    private let imageService = ImageService.shared
     var films: [Film] = []
+    private var imageLoadTasks: [IndexPath: UUID] = [:]
 
     func searchFilms(query: String) {
         guard !query.isEmpty else {
@@ -55,5 +57,28 @@ class SearchViewModel {
                 self?.view?.updateUI(with: self?.films ?? [])
             }
         }
+    }
+
+    func loadImage(for film: Film, at indexPath: IndexPath, completion: @escaping (UIImage?) -> Void) {
+        cancelImageLoad(for: indexPath)
+
+        if let taskId = imageService.loadImage(from: film.poster?.url, completion: { [weak self] image in
+            self?.imageLoadTasks.removeValue(forKey: indexPath)
+            completion(image)
+        }) {
+            imageLoadTasks[indexPath] = taskId
+        }
+    }
+
+    func cancelImageLoad(for indexPath: IndexPath) {
+        if let taskId = imageLoadTasks[indexPath] {
+            imageService.cancelLoad(taskId)
+            imageLoadTasks.removeValue(forKey: indexPath)
+        }
+    }
+
+    func clearImageTasks() {
+        imageLoadTasks.values.forEach { imageService.cancelLoad($0) }
+        imageLoadTasks.removeAll()
     }
 }

@@ -133,9 +133,17 @@ extension SearchVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
         let film = viewModel.films[indexPath.row]
-        cell.titleLabel.text = film.title
-        cell.releaseDateLabel.text = film.year != nil ? "\(film.year!)" : ""
-        cell.setImage(UIImage(named: "AppIcon"))
+//        cell.titleLabel.text = film.title
+//        cell.releaseDateLabel.text = film.year != nil ? "\(film.year!)" : ""
+//        cell.setImage(UIImage(named: "AppIcon"))
+        cell.configure(with: film)
+
+        viewModel.loadImage(for: film, at: indexPath) { image in
+            if let cell = tableView.cellForRow(at: indexPath) as? FilmCell {
+                cell.previewImageView.image = image ?? UIImage(named: "AppIcon")
+            }
+        }
+
         return cell
     }
 }

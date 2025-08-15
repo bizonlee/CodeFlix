@@ -10,13 +10,13 @@ import UIKit
 class FilmCell: UITableViewCell {
     private lazy var layout = FilmCellLayout()
 
-    private lazy var previewImageView: UIImageView = {
-        let iv = UIImageView()
-        iv.contentMode = .scaleAspectFill
-        iv.clipsToBounds = true
-        iv.layer.cornerRadius = 6
-        iv.backgroundColor = .systemGray5
-        return iv
+    lazy var previewImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 6
+        imageView.backgroundColor = .systemGray5
+        return imageView
     }()
 
     lazy var titleLabel: UILabel = {
@@ -72,19 +72,14 @@ class FilmCell: UITableViewCell {
         return layout.cellSize
     }
 
+//    func setImage(_ image: UIImage?) {
+//        previewImageView.image = image ?? UIImage(named: "placeholder")
+//    }
+
     func configure(with film: Film) {
         titleLabel.text = film.title
-        releaseDateLabel.text = ""
-        layout.calculateLayout(
-            for: bounds.width,
-            title: film.title,
-            releaseDate: ""
-        )
-        setNeedsLayout()
-    }
-
-    func setImage(_ image: UIImage?) {
-        previewImageView.image = image ?? UIImage(named: "placeholder")
+        releaseDateLabel.text = film.year.map { String($0) } ?? ""
+        previewImageView.image = nil // Сбрасываем изображение перед конфигурацией
     }
 
     override func prepareForReuse() {
