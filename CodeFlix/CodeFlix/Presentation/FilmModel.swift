@@ -22,9 +22,9 @@ struct Poster: Decodable {
 }
 
 struct FilmsSearchResponse: Decodable {
-    let films: [Film]
+    let docs: [Film]
 
-    enum CodingKeys: String, CodingKey {
-        case films = "docs"
-    }
+//    enum CodingKeys: String, CodingKey {
+//        case films = "docs"
+//    }
 }

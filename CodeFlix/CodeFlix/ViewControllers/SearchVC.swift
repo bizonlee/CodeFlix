@@ -120,7 +120,6 @@ final class SearchVC: UIViewController, UITableViewDelegate {
     }
 
     func updateUI(with films: [Film]) {
-        let films = viewModel.films
         tableView.reloadData()
     }
 }
@@ -133,9 +132,6 @@ extension SearchVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
         let film = viewModel.films[indexPath.row]
-//        cell.titleLabel.text = film.title
-//        cell.releaseDateLabel.text = film.year != nil ? "\(film.year!)" : ""
-//        cell.setImage(UIImage(named: "AppIcon"))
         cell.configure(with: film)
 
         viewModel.loadImage(for: film, at: indexPath) { image in

@@ -72,14 +72,10 @@ class FilmCell: UITableViewCell {
         return layout.cellSize
     }
 
-//    func setImage(_ image: UIImage?) {
-//        previewImageView.image = image ?? UIImage(named: "placeholder")
-//    }
-
     func configure(with film: Film) {
         titleLabel.text = film.title
         releaseDateLabel.text = film.year.map { String($0) } ?? ""
-        previewImageView.image = nil // Сбрасываем изображение перед конфигурацией
+        previewImageView.image = nil 
     }
 
     override func prepareForReuse() {
