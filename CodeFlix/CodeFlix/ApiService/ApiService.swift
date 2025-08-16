@@ -12,6 +12,7 @@ import Foundation
 class ApiService {
     private let apiKey = "EGPARVP-T1C4CP0-PJCZ9SE-6TH4NVG"
     private let baseUrl = "https://api.kinopoisk.dev/v1.3/movie"
+    private let filmsCountPerPage: Int = 10
 
     private func performRequest<T: Decodable>(url: URL, completion: @escaping (Result<T, Error>) -> Void) {
         var request = URLRequest(url: url)
@@ -38,14 +39,13 @@ class ApiService {
         }.resume()
     }
 
-    func searchMovies(query: String, completion: @escaping (Result<[Film], Error>) -> Void) {
+    func searchMovies(query: String, page: Int = 1, completion: @escaping (Result<[Film], Error>) -> Void) {
         guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
             completion(.failure(URLError(.badURL)))
             return
         }
 
-        let url = URL(string: "\(baseUrl)?name=\(encodedQuery)&limit=20")!
-
+        let url = URL(string: "\(baseUrl)?page=\(page)&limit=\(filmsCountPerPage)&name=\(encodedQuery)")!
         performRequest(url: url) { (result: Result<FilmsSearchResponse, Error>) in
             switch result {
             case .success(let response):

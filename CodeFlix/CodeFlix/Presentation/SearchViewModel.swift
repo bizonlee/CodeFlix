@@ -7,31 +7,52 @@
 
 import UIKit
 
+protocol SearchViewModelDelegate: AnyObject {
+    func updateUI(with films: [Film])
+    func showErrorAlert(message: String)
+}
+
 class SearchViewModel {
 
-    weak var view: SearchVC?
+    weak var delegate: SearchViewModelDelegate?
     private let searchService = ApiService()
     private let imageService = ImageService.shared
     var films: [Film] = []
     private var imageLoadTasks: [IndexPath: UUID] = [:]
+    private var currentPage = 1
+    private var isLoading = false
+    private var hasMore = true
 
-    func searchFilms(query: String) {
+    func searchFilms(query: String, isNewSearch: Bool = true) {
         guard !query.isEmpty else {
             films = []
-            view?.updateUI(with: films)
+            delegate?.updateUI(with: films)
             return
         }
 
-        searchService.searchMovies(query: query) { [weak self] result in
+        if isNewSearch {
+            currentPage = 1
+            films = []
+            hasMore = true
+        }
+
+        guard !isLoading && hasMore else { return }
+
+        isLoading = true
+
+        searchService.searchMovies(query: query, page: currentPage) { [weak self] result in
             DispatchQueue.main.async {
+                self?.isLoading = false
+
                 switch result {
-                case .success(let films):
-                    self?.films = films
+                case .success(let newFilms):
+                    self?.films += newFilms
+                    self?.hasMore = !newFilms.isEmpty
+                    self?.currentPage += 1
                 case .failure(let error):
                     print("Search error: \(error.localizedDescription)")
-                    self?.films = []
                 }
-                self?.view?.updateUI(with: self?.films ?? [])
+                self?.delegate?.updateUI(with: self?.films ?? [])
             }
         }
     }
@@ -46,39 +67,14 @@ class SearchViewModel {
                     print("Popular films error: \(error.localizedDescription)")
                     self?.films = []
 
-                    let alert = UIAlertController(
-                        title: "Ошибка",
-                        message: "Не удалось загрузить популярные фильмы: \(error.localizedDescription)",
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-                    self?.view?.present(alert, animated: true)
+                    self?.delegate?.showErrorAlert(message: "Не удалось загрузить популярные фильмы: \(error.localizedDescription)")
                 }
-                self?.view?.updateUI(with: self?.films ?? [])
+                self?.delegate?.updateUI(with: self?.films ?? [])
             }
         }
     }
 
     func loadImage(for film: Film, at indexPath: IndexPath, completion: @escaping (UIImage?) -> Void) {
-        cancelImageLoad(for: indexPath)
-
-        if let taskId = imageService.loadImage(from: film.poster?.url, completion: { [weak self] image in
-            self?.imageLoadTasks.removeValue(forKey: indexPath)
-            completion(image)
-        }) {
-            imageLoadTasks[indexPath] = taskId
-        }
-    }
-
-    func cancelImageLoad(for indexPath: IndexPath) {
-        if let taskId = imageLoadTasks[indexPath] {
-            imageService.cancelLoad(taskId)
-            imageLoadTasks.removeValue(forKey: indexPath)
-        }
-    }
-
-    func clearImageTasks() {
-        imageLoadTasks.values.forEach { imageService.cancelLoad($0) }
-        imageLoadTasks.removeAll()
+        imageService.loadImage(from: film.poster?.url, completion: completion)
     }
 }

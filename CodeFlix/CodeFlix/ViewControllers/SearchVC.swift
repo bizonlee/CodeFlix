@@ -7,14 +7,9 @@
 
 import UIKit
 
-final class SearchVC: UIViewController, UITableViewDelegate {
+final class SearchVC: UIViewController {
 
     private let viewModel = SearchViewModel()
-    private var currentPage = 1
-    private let pageSize = 10
-    private var isLoading = false
-    private var isPullToRefresh = false
-    private var hasMoreFilms = true
 
     private lazy var searchTextField: UITextField = {
         let textField = UITextField()
@@ -80,7 +75,7 @@ final class SearchVC: UIViewController, UITableViewDelegate {
         super.viewDidLoad()
         title = "Поиск"
         view.backgroundColor = .white
-        viewModel.view = self
+        viewModel.delegate = self
         setupViews()
         setupConstraints()
         viewModel.fetchPopularFilms()
@@ -118,10 +113,6 @@ final class SearchVC: UIViewController, UITableViewDelegate {
         }
         viewModel.searchFilms(query: query)
     }
-
-    func updateUI(with films: [Film]) {
-        tableView.reloadData()
-    }
 }
 
 extension SearchVC: UITableViewDataSource {
@@ -135,11 +126,35 @@ extension SearchVC: UITableViewDataSource {
         cell.configure(with: film)
 
         viewModel.loadImage(for: film, at: indexPath) { image in
-            if let cell = tableView.cellForRow(at: indexPath) as? FilmCell {
-                cell.previewImageView.image = image ?? UIImage(named: "AppIcon")
-            }
+            cell.previewImageView.image = image ?? UIImage(named: "placeholder")
         }
 
         return cell
+    }
+}
+
+extension SearchVC: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let lastElement = viewModel.films.count - 1
+        if indexPath.row == lastElement, let query = searchTextField.text, !query.isEmpty {
+            viewModel.searchFilms(query: query, isNewSearch: false)
+        }
+    }
+}
+
+
+extension SearchVC: SearchViewModelDelegate {
+    func showErrorAlert(message: String) {
+        let alert = UIAlertController(
+            title: "Ошибка",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    func updateUI(with films: [Film]) {
+        tableView.reloadData()
     }
 }

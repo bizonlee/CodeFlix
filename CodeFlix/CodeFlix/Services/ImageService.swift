@@ -8,33 +8,18 @@ import UIKit
 
 class ImageService {
     static let shared = ImageService()
-    private var runningRequests = [UUID: URLSessionDataTask]()
 
-    func loadImage(from urlString: String?, completion: @escaping (UIImage?) -> Void) -> UUID? {
+    func loadImage(from urlString: String?, completion: @escaping (UIImage?) -> Void) {
         guard let urlString = urlString, let url = URL(string: urlString) else {
             completion(nil)
-            return nil
+            return
         }
 
-        let uuid = UUID()
-
-        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            defer { self?.runningRequests.removeValue(forKey: uuid) }
-
-            if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async { completion(image) }
-            } else {
-                DispatchQueue.main.async { completion(nil) }
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            let image = data.flatMap { UIImage(data: $0) }
+            DispatchQueue.main.async {
+                completion(image)
             }
-        }
-        task.resume()
-
-        runningRequests[uuid] = task
-        return uuid
-    }
-
-    func cancelLoad(_ uuid: UUID) {
-        runningRequests[uuid]?.cancel()
-        runningRequests.removeValue(forKey: uuid)
+        }.resume()
     }
 }
