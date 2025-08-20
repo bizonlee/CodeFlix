@@ -9,6 +9,7 @@ import UIKit
 
 class FilmCell: UITableViewCell {
     private lazy var layout = FilmCellLayout()
+    private var viewModel: FilmCellViewModel?
 
     lazy var previewImageView: UIImageView = {
         let imageView = UIImageView()
@@ -72,10 +73,25 @@ class FilmCell: UITableViewCell {
         return layout.cellSize
     }
 
-    func configure(with film: Film) {
-        titleLabel.text = film.title
-        releaseDateLabel.text = film.year.map { String($0) } ?? ""
-        previewImageView.image = nil 
+    func configure(with viewModel: FilmCellViewModel) {
+        self.viewModel = viewModel
+
+        titleLabel.text = viewModel.film.title
+        releaseDateLabel.text = viewModel.film.year.map { String($0) } ?? ""
+        previewImageView.image = nil
+        let currentUrl = viewModel.film.poster?.url
+
+        viewModel.loadImage { [weak self] image in
+
+                DispatchQueue.main.async {
+                    if currentUrl == self?.viewModel?.film.poster?.url {
+                        self?.previewImageView.image = image
+                    }
+
+                }
+
+
+        }
     }
 
     override func prepareForReuse() {
@@ -83,5 +99,7 @@ class FilmCell: UITableViewCell {
         previewImageView.image = nil
         titleLabel.text = nil
         releaseDateLabel.text = nil
+        viewModel?.cancelImageDownloadTask()
+        viewModel = nil
     }
 }

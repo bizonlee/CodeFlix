@@ -73,8 +73,4 @@ class SearchViewModel {
             }
         }
     }
-
-    func loadImage(for film: Film, at indexPath: IndexPath, completion: @escaping (UIImage?) -> Void) {
-        imageService.loadImage(from: film.poster?.url, completion: completion)
-    }
 }
