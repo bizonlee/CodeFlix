@@ -7,6 +7,11 @@
 
 import UIKit
 
+
+protocol Cancellable {
+    func cancel()
+}
+
 class ImageService {
     static let shared = ImageService()
 
@@ -33,3 +38,5 @@ class ImageService {
         return task
     }
 }
+
+extension URLSessionDataTask: Cancellable {}

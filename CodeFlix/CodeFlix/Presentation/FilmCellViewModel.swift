@@ -9,7 +9,7 @@ import UIKit
 
 final class FilmCellViewModel {
     let film: Film
-    var task: URLSessionDataTask?
+    var task: Cancellable?
 
     init(film: Film) {
         self.film = film

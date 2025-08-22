@@ -46,13 +46,14 @@ class FilmCell: UITableViewCell {
         setupViews()
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     private func setupViews() {
-        [previewImageView, titleLabel, releaseDateLabel, menuButton].forEach {
-            contentView.addSubview($0)
+        for item in [previewImageView, titleLabel, releaseDateLabel, menuButton] {
+            contentView.addSubview(item)
         }
     }
 
@@ -65,11 +66,9 @@ class FilmCell: UITableViewCell {
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        layout.calculateLayout(
-            for: size.width,
-            title: titleLabel.text ?? "",
-            releaseDate: releaseDateLabel.text ?? ""
-        )
+        layout.calculateLayout(for: size.width,
+                               title: titleLabel.text ?? "",
+                               releaseDate: releaseDateLabel.text ?? "")
         return layout.cellSize
     }
 
@@ -83,14 +82,11 @@ class FilmCell: UITableViewCell {
 
         viewModel.loadImage { [weak self] image in
 
-                DispatchQueue.main.async {
-                    if currentUrl == self?.viewModel?.film.poster?.url {
-                        self?.previewImageView.image = image
-                    }
-
+            DispatchQueue.main.async {
+                if currentUrl == self?.viewModel?.film.poster?.url {
+                    self?.previewImageView.image = image
                 }
-
-
+            }
         }
     }
 
