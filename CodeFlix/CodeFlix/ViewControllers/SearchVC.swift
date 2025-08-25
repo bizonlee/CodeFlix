@@ -154,3 +154,14 @@ extension SearchVC: SearchViewModelDelegate {
         tableView.reloadData()
     }
 }
+
+extension SearchVC {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let film = viewModel.films[indexPath.row]
+        let filmVC = FilmVC(film: film)
+        navigationController?.pushViewController(filmVC, animated: true)
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
