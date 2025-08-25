@@ -9,11 +9,13 @@ struct Film: Decodable {
     let title: String
     let year: Int?
     let poster: Poster?
+    let movieLength: Int?
 
     private enum CodingKeys: String, CodingKey {
         case title = "name"
         case year
         case poster
+        case movieLength
     }
 }
 

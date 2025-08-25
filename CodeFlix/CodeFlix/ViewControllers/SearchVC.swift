@@ -123,12 +123,8 @@ extension SearchVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
         let film = viewModel.films[indexPath.row]
-        cell.configure(with: film)
-
-        viewModel.loadImage(for: film, at: indexPath) { image in
-            cell.previewImageView.image = image ?? UIImage(named: "placeholder")
-        }
-
+        let cellViewModel = FilmCellViewModel(film: film)
+        cell.configure(with: cellViewModel)
         return cell
     }
 }

@@ -9,6 +9,7 @@ import UIKit
 
 class FilmCell: UITableViewCell {
     private lazy var layout = FilmCellLayout()
+    private var viewModel: FilmCellViewModel?
 
     lazy var previewImageView: UIImageView = {
         let imageView = UIImageView()
@@ -45,13 +46,14 @@ class FilmCell: UITableViewCell {
         setupViews()
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     private func setupViews() {
-        [previewImageView, titleLabel, releaseDateLabel, menuButton].forEach {
-            contentView.addSubview($0)
+        for item in [previewImageView, titleLabel, releaseDateLabel, menuButton] {
+            contentView.addSubview(item)
         }
     }
 
@@ -64,18 +66,28 @@ class FilmCell: UITableViewCell {
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        layout.calculateLayout(
-            for: size.width,
-            title: titleLabel.text ?? "",
-            releaseDate: releaseDateLabel.text ?? ""
-        )
+        layout.calculateLayout(for: size.width,
+                               title: titleLabel.text ?? "",
+                               releaseDate: releaseDateLabel.text ?? "")
         return layout.cellSize
     }
 
-    func configure(with film: Film) {
-        titleLabel.text = film.title
-        releaseDateLabel.text = film.year.map { String($0) } ?? ""
-        previewImageView.image = nil 
+    func configure(with viewModel: FilmCellViewModel) {
+        self.viewModel = viewModel
+
+        titleLabel.text = viewModel.film.title
+        releaseDateLabel.text = viewModel.film.year.map { String($0) } ?? ""
+        previewImageView.image = nil
+        let currentUrl = viewModel.film.poster?.url
+
+        viewModel.loadImage { [weak self] image in
+
+            DispatchQueue.main.async {
+                if currentUrl == self?.viewModel?.film.poster?.url {
+                    self?.previewImageView.image = image
+                }
+            }
+        }
     }
 
     override func prepareForReuse() {
@@ -83,5 +95,7 @@ class FilmCell: UITableViewCell {
         previewImageView.image = nil
         titleLabel.text = nil
         releaseDateLabel.text = nil
+        viewModel?.cancelImageDownloadTask()
+        viewModel = nil
     }
 }
