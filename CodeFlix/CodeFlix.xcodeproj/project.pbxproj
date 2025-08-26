@@ -14,7 +14,7 @@
 		F797A80E2E43DBE4003ECD27 /* Exceptions for "CodeFlix" folder in "CodeFlix" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Resources/Info.plist,
 			);
 			target = F797A7FB2E43DBE1003ECD27 /* CodeFlix */;
 		};
@@ -147,7 +147,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 67QL4NF383;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = CodeFlix/Info.plist;
+				INFOPLIST_FILE = CodeFlix/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -174,7 +174,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 67QL4NF383;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = CodeFlix/Info.plist;
+				INFOPLIST_FILE = CodeFlix/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
