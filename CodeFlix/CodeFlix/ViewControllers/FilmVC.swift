@@ -11,7 +11,7 @@ final class FilmVC: UIViewController {
     // MARK: - Private properties
     private let film: Film
 
-    private let scrollView: UIScrollView = UIScrollView()
+    let scrollView: UIScrollView = UIScrollView()
     private let contentView: UIView = UIView()
     
     private let filmCover: UIImageView = UIImageView()
@@ -21,14 +21,12 @@ final class FilmVC: UIViewController {
     private let filmCountriesAndLength: UILabel = UILabel()
     private let actionBar: UIStackView = UIStackView()
     private let filmDescription: UILabel = UILabel()
-
     
     // MARK: - init
     
     init(film: Film) {
         self.film = film
         super.init(nibName: nil, bundle: nil)
-        
     }
     
     required init?(coder: NSCoder) {
@@ -59,7 +57,6 @@ final class FilmVC: UIViewController {
         setupDescription()
 
         scrollView.contentInsetAdjustmentBehavior = .never
-        //scrollView.bouncesVertically = false
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -71,7 +68,9 @@ final class FilmVC: UIViewController {
          filmYearAndGenres,
          filmCountriesAndLength,
          actionBar,
-         filmDescription].forEach{contentView.addSubview($0)}
+         filmDescription].forEach {
+            contentView.addSubview($0)
+        }
     }
     
     private func setupFilmCover() {
@@ -105,11 +104,13 @@ final class FilmVC: UIViewController {
     }
 
     private func setupYearAndGenres() {
-        filmYearAndGenres.text = film.year?.description
-
-        for genre in film.genres ?? [] {
-            filmYearAndGenres.text!+=", \(genre.name.description)"
-        }
+        let year: [String] = {
+            guard let year = film.year else { return [] }
+            return [String(year)]
+        }()
+        let genres = film.genres?.map { $0.name } ?? []
+        let result = (year + genres).joined(separator: ", ")
+        filmYearAndGenres.text = result
 
         filmYearAndGenres.font = .systemFont(ofSize: 14, weight: .medium)
         filmYearAndGenres.textColor = .secondaryLabel
@@ -118,24 +119,13 @@ final class FilmVC: UIViewController {
     }
 
     private func setupCountriesAndLength() {
-        filmCountriesAndLength.text = ""
+        let countries = film.countries?.map { $0.name } ?? []
 
-        for country in film.countries ?? [] {
-            filmCountriesAndLength.text! += "\(country.name.description), "
-        }
-
-        if film.type == "movie" {
-            let hour = Int(film.movieLength ?? 0) / 60
-            let minutes = Int(film.movieLength ?? 0) % 60
-
-            if hour > 0 {
-                filmCountriesAndLength.text! += " \(hour) ч"
-            }
-
-            if minutes > 0 {
-                filmCountriesAndLength.text! += " \(minutes) мин"
-            }
-        }
+        let filmLength: [String] = {
+            guard let length = film.movieLength else { return [] }
+            return ["\(String(length / 60)) ч " + "\(String(length % 60)) мин"]
+        }()
+        filmCountriesAndLength.text = (countries + filmLength).joined(separator: ", ")
 
         filmCountriesAndLength.font = .systemFont(ofSize: 14, weight: .medium)
         filmCountriesAndLength.textColor = .secondaryLabel
@@ -145,10 +135,10 @@ final class FilmVC: UIViewController {
 
     private func setupActionBar() {
         let items: [(UIImage, String)] = [
-            (UIImage(systemName: "star") ?? UIImage(), "Оценить"),
-            (UIImage(systemName: "bookmark") ?? UIImage(), "Буду смотреть"),
-            (UIImage(systemName: "square.and.arrow.up") ?? UIImage(), "Поделиться"),
-            (UIImage(systemName: "ellipsis") ?? UIImage(), "Ещё")
+            (FilmActionsType.like.image, FilmActionsType.like.title),
+            (FilmActionsType.watchLater.image, FilmActionsType.watchLater.title),
+            (FilmActionsType.share.image, FilmActionsType.share.title),
+            (FilmActionsType.more.image, FilmActionsType.more.title)
         ]
 
         for item in items {
@@ -158,8 +148,6 @@ final class FilmVC: UIViewController {
 
         actionBar.axis = .horizontal
         actionBar.distribution = .fillEqually
-        //actionBar.spacing = 10
-
     }
 
     private func setupDescription() {
@@ -170,78 +158,121 @@ final class FilmVC: UIViewController {
         filmDescription.numberOfLines = 0
     }
 
-     func creatingImageWithLabel(image: UIImage, text: String) -> UIStackView {
-        let imageView = UIImageView(image: image)
-            imageView.contentMode = .scaleAspectFit
-            imageView.tintColor = .secondaryLabel
-            imageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+    func creatingImageWithLabel(image: UIImage, text: String) -> UIStackView {
+        let button = UIButton(type: .system)
+        button.setImage(image, for: .normal)
+        button.tintColor = .secondaryLabel
+        button.imageView?.contentMode = .scaleAspectFit
 
-            let label = UILabel()
-            label.text = text
-            label.textAlignment = .center
-            label.font = UIFont.systemFont(ofSize: 10)
-            label.textColor = .secondaryLabel
+        let label = UILabel()
+        label.text = text
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 10)
+        label.textColor = .secondaryLabel
 
-            let stack = UIStackView(arrangedSubviews: [imageView, label])
-            stack.axis = .vertical
-            stack.spacing = 5
-            return stack
+        let stack = UIStackView(arrangedSubviews: [button, label])
+        stack.axis = .vertical
+        stack.spacing = 5
+        return stack
     }
 
+    @objc
+    func likeTapped() {
+        
+    }
 
     //MARK: - Layout
     
     func setupLayout() {
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        filmCover.translatesAutoresizingMaskIntoConstraints = false
-        filmTitle.translatesAutoresizingMaskIntoConstraints = false
-        filmYearAndGenres.translatesAutoresizingMaskIntoConstraints = false
-        filmDescription.translatesAutoresizingMaskIntoConstraints = false
-        filmCountriesAndLength.translatesAutoresizingMaskIntoConstraints = false
-        ratingAndAlternativeName.translatesAutoresizingMaskIntoConstraints = false
-        actionBar.translatesAutoresizingMaskIntoConstraints = false
+        [
+            scrollView,
+            contentView,
+            filmCover,
+            filmTitle,
+            filmYearAndGenres,
+            filmDescription,
+            filmCountriesAndLength,
+            ratingAndAlternativeName,
+            actionBar,
+        ].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
 
-        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        
-        contentView.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-        contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor).isActive = true
-        contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor).isActive = true
-        contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor).isActive = true
-        contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
-        
-        filmCover.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 100).isActive = true
-        filmCover.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        filmCover.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        filmCover.widthAnchor.constraint(equalTo: contentView.widthAnchor).isActive = true
-        filmCover.heightAnchor.constraint(equalTo: filmCover.widthAnchor).isActive = true
-        
-        filmTitle.topAnchor.constraint(equalTo: filmCover.bottomAnchor, constant: 15).isActive = true
-        filmTitle.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20).isActive = true
-        filmTitle.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20).isActive = true
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-        ratingAndAlternativeName.topAnchor.constraint(equalTo: filmTitle.bottomAnchor, constant: 15).isActive = true
-        ratingAndAlternativeName.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20).isActive = true
-        ratingAndAlternativeName.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20).isActive = true
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-        filmYearAndGenres.topAnchor.constraint(equalTo: ratingAndAlternativeName.bottomAnchor).isActive = true
-        filmYearAndGenres.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20).isActive = true
-        filmYearAndGenres.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20).isActive = true
+            filmCover.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 100),
+            filmCover.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            filmCover.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            filmCover.widthAnchor.constraint(equalTo: contentView.widthAnchor),
+            filmCover.heightAnchor.constraint(equalTo: filmCover.widthAnchor),
 
-        filmCountriesAndLength.topAnchor.constraint(equalTo: filmYearAndGenres.bottomAnchor).isActive = true
-        filmCountriesAndLength.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20).isActive = true
-        filmCountriesAndLength.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20).isActive = true
+            filmTitle.topAnchor.constraint(equalTo: filmCover.bottomAnchor, constant: 15),
+            filmTitle.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            filmTitle.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
 
-        actionBar.topAnchor.constraint(equalTo: filmCountriesAndLength.bottomAnchor, constant: 20).isActive = true
-        actionBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 50).isActive = true
-        actionBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -50).isActive = true
+            ratingAndAlternativeName.topAnchor.constraint(equalTo: filmTitle.bottomAnchor, constant: 15),
+            ratingAndAlternativeName.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            ratingAndAlternativeName.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
 
-        filmDescription.topAnchor.constraint(equalTo: actionBar.bottomAnchor, constant: 30).isActive = true
-        filmDescription.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10).isActive = true
-        filmDescription.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10).isActive = true
-        filmDescription.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -90).isActive = true
+            filmYearAndGenres.topAnchor.constraint(equalTo: ratingAndAlternativeName.bottomAnchor),
+            filmYearAndGenres.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
+            filmYearAndGenres.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
+
+            filmCountriesAndLength.topAnchor.constraint(equalTo: filmYearAndGenres.bottomAnchor),
+            filmCountriesAndLength.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
+            filmCountriesAndLength.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
+
+            actionBar.topAnchor.constraint(equalTo: filmCountriesAndLength.bottomAnchor, constant: 20),
+            actionBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 50),
+            actionBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -50),
+
+            filmDescription.topAnchor.constraint(equalTo: actionBar.bottomAnchor, constant: 30),
+            filmDescription.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            filmDescription.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            filmDescription.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -90)
+        ])
+    }
+}
+
+enum FilmActionsType {
+    case like
+    case watchLater
+    case share
+    case more
+
+    var title: String {
+        switch self {
+        case .like:
+            "Лайк"
+        case .watchLater:
+            "Буду смотреть"
+        case .share:
+            "Поделиться"
+        case .more:
+            "Ещё"
+        }
+    }
+
+    var image: UIImage {
+        switch self {
+        case .like:
+            UIImage(systemName: "heart") ?? UIImage()
+        case .watchLater:
+            UIImage(systemName: "bookmark") ?? UIImage()
+        case .share:
+            UIImage(systemName: "square.and.arrow.up") ?? UIImage()
+        case .more:
+            UIImage(systemName: "ellipsis") ?? UIImage()
+        }
     }
 }
