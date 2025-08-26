@@ -11,6 +11,8 @@ class FilmCell: UITableViewCell {
     private lazy var layout = FilmCellLayout()
     private var viewModel: FilmCellViewModel?
 
+    private var filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
+
     lazy var previewImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -38,8 +40,23 @@ class FilmCell: UITableViewCell {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.tintColor = .label
+        button.addTarget(self, action: #selector(menuButtonTapped), for: .touchUpInside)
         return button
     }()
+
+    @objc private func menuButtonTapped() {
+        filmViewedManager.markFilmAsViewed(with: (viewModel?.film.id)!)
+        updateCellState()
+    }
+
+    private func updateCellState() {
+
+        if filmViewedManager.isViewed(with: (viewModel?.film.id)!) {
+            contentView.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
+        } else {
+            contentView.backgroundColor = .clear
+        }
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -78,6 +95,9 @@ class FilmCell: UITableViewCell {
         titleLabel.text = viewModel.film.title
         releaseDateLabel.text = viewModel.film.year.map { String($0) } ?? ""
         previewImageView.image = nil
+
+        updateCellState()
+
         let currentUrl = viewModel.film.poster?.url
 
         viewModel.loadImage { [weak self] image in
