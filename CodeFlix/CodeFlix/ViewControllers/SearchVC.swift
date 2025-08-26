@@ -11,31 +11,17 @@ final class SearchVC: UIViewController {
 
     private let viewModel = SearchViewModel()
 
-    private lazy var searchTextField: UITextField = {
-        let textField = UITextField()
+    private var searchTimer: Timer?
+    private let debounceInterval: TimeInterval = 0.5
+
+    private lazy var searchTextField: UISearchTextField = {
+        let textField = UISearchTextField()
         textField.placeholder = "Search..."
         textField.translatesAutoresizingMaskIntoConstraints = false
-
-        let placeholderColor = UIColor(white: 0.5, alpha: 1.0)
-
         textField.layer.cornerRadius = 8.0
         textField.layer.masksToBounds = true
-
         textField.layer.borderWidth = 1.0
-        textField.layer.borderColor = UIColor(white: 0.3, alpha: 1.0).cgColor
-
-        let searchIcon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        searchIcon.tintColor = placeholderColor
-        searchIcon.contentMode = .scaleAspectFit
-
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 20))
-        searchIcon.frame = CGRect(x: 8, y: 0, width: 20, height: 20)
-        paddingView.addSubview(searchIcon)
-
-        textField.leftView = paddingView
-        textField.leftViewMode = .always
-        textField.heightAnchor.constraint(equalToConstant: 30).isActive = true
-
+        textField.addTarget(self, action: #selector(searchTextFieldDidChange), for: .editingChanged)
         return textField
     }()
 
@@ -105,13 +91,25 @@ final class SearchVC: UIViewController {
         ])
     }
 
-    @objc private func searchButtonTapped() {
-        searchTextField.resignFirstResponder()
+    @objc
+    private func searchButtonTapped() {
         guard let query = searchTextField.text, !query.isEmpty else {
-            updateUI(with: [])
+            viewModel.fetchPopularFilms()
             return
         }
         viewModel.searchFilms(query: query)
+    }
+
+    @objc
+    private func searchTextFieldDidChange(_ textField: UISearchTextField) {
+        searchTimer?.invalidate()
+        searchTimer = Timer.scheduledTimer(
+            timeInterval: debounceInterval,
+            target: self,
+            selector: #selector(searchButtonTapped),
+            userInfo: nil,
+            repeats: false
+        )
     }
 }
 
