@@ -42,7 +42,7 @@ class ImageService {
                 return
             }
 
-            self.cache.setObject(image, forKey: url as NSURL)
+            cache.setObject(image, forKey: url as NSURL)
 
             DispatchQueue.main.async {
                 completion(image)
