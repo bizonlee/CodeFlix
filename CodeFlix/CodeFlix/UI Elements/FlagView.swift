@@ -16,6 +16,7 @@ final class FlagView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        shapeLayer.fillColor = UIColor.red.cgColor
         setupView()
     }
 
@@ -44,7 +45,6 @@ final class FlagView: UIView {
         path.close()
 
         shapeLayer.path = path.cgPath
-        shapeLayer.fillColor = UIColor.red.cgColor
         shapeLayer.lineWidth = 0
     }
 
