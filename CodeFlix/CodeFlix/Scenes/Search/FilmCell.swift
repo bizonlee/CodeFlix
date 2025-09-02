@@ -123,11 +123,11 @@ class FilmCell: UITableViewCell {
             contentView.backgroundColor = .clear
         }
 
-        if filmViewedManager.isMarkedForWatching(with: (viewModel?.film.id)!) {
-            flagView.isHidden = false
-        } else {
+        guard let filmId = viewModel?.film.id else {
             flagView.isHidden = true
+            return
         }
+        flagView.isHidden = !filmViewedManager.isMarkedForWatching(with: filmId)
     }
 
     @objc

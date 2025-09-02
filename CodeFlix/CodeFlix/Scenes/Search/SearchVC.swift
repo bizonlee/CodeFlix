@@ -10,7 +10,7 @@ import UIKit
 final class SearchVC: UIViewController {
 
     private let viewModel = SearchViewModel()
-    private var filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
+    private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
     private var searchTimer: Timer?
     private let debounceInterval: TimeInterval = 0.5
 
@@ -220,12 +220,9 @@ extension SearchVC: FilmCellDelegate {
         let isCurrentlyMarked = filmViewedManager.isMarkedForWatching(with: film.id)
 
         if isCurrentlyMarked {
-            let key: String = "forWatching\(film.id)"
-            UserDefaults.standard.removeObject(forKey: key)
-            print("Убрали из 'Буду смотреть': \(film.title)")
+            filmViewedManager.removeFilmFromWatchLater(with: film.id)
         } else {
             filmViewedManager.markForWatching(with: film.id)
-            print("Добавили в 'Буду смотреть': \(film.title)")
         }
 
         if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {
@@ -234,6 +231,8 @@ extension SearchVC: FilmCellDelegate {
 
             let indexPath = IndexPath(row: index, section: 0)
             tableView.reloadRows(at: [indexPath], with: .automatic)
+
+            
         }
     }
 
@@ -241,12 +240,9 @@ extension SearchVC: FilmCellDelegate {
         let isCurrentlyViewed = filmViewedManager.isViewed(with: film.id)
 
         if isCurrentlyViewed {
-            let key: String = "viewed\(film.id)"
-            UserDefaults.standard.removeObject(forKey: key)
-            print("Убрали из просмотренных: \(film.title)")
+            filmViewedManager.removeFilmFromViewed(with: film.id)
         } else {
             filmViewedManager.markFilmAsViewed(with: film.id)
-            print("Добавили в просмотренные: \(film.title)")
         }
 
         if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {

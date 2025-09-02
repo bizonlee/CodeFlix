@@ -4,6 +4,7 @@
 //
 //  Created by Zhdanov Konstantin on 31.08.2025.
 //
+
 import UIKit
 
 final class FlagView: UIView {

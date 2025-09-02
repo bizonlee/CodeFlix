@@ -11,8 +11,19 @@ final class FilmCellViewModel {
     let film: Film
     var task: Cancellable?
 
-    init(film: Film) {
+    private let filmViewedManager: FilmViewedManagerProtocol
+
+    init(film: Film, filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()) {
         self.film = film
+        self.filmViewedManager = filmViewedManager
+    }
+
+    var isFilmViewed: Bool {
+        filmViewedManager.isViewed(with: film.id)
+    }
+
+    var isFilmMarkedForWatching: Bool {
+        filmViewedManager.isMarkedForWatching(with: film.id)
     }
 
     func loadImage(completion: @escaping (UIImage?) -> Void) {
