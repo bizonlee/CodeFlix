@@ -14,9 +14,9 @@ final class FilmVC: UIViewController {
     let scrollView: UIScrollView = UIScrollView()
     private let contentView: UIView = UIView()
     
-    private let filmCover: UIImageView = UIImageView()
-    private let filmTitle: UILabel = UILabel()
-    private let ratingAndAlternativeName: UILabel = UILabel()
+    private let filmCover = UIImageView()
+    private let filmTitle = UILabel()
+    private let ratingAndAlternativeName = UILabel()
     private let filmYearAndGenres: UILabel = UILabel()
     private let filmCountriesAndLength: UILabel = UILabel()
     private let actionBar: UIStackView = UIStackView()

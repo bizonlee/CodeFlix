@@ -7,9 +7,15 @@
 
 import UIKit
 
+protocol FilmCellDelegate: AnyObject {
+    func filmCellDidTapMenu(_ cell: FilmCell, film: Film, sourceView: UIView)
+}
+
 class FilmCell: UITableViewCell {
     private lazy var layout = FilmCellLayout()
     private var viewModel: FilmCellViewModel?
+    private var filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
+    weak var delegate: FilmCellDelegate?
 
     lazy var previewImageView: UIImageView = {
         let imageView = UIImageView()
@@ -38,12 +44,21 @@ class FilmCell: UITableViewCell {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.tintColor = .label
+        button.addTarget(self, action: #selector(menuButtonTapped), for: .touchUpInside)
         return button
+    }()
+
+    private lazy var flagView: FlagView = {
+        let view = FlagView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        return view
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
+        setupFlagView()
     }
 
     @available(*, unavailable)
@@ -55,6 +70,16 @@ class FilmCell: UITableViewCell {
         for item in [previewImageView, titleLabel, releaseDateLabel, menuButton] {
             contentView.addSubview(item)
         }
+    }
+
+    private func setupFlagView() {
+        contentView.addSubview(flagView)
+        NSLayoutConstraint.activate([
+            flagView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            flagView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -50),
+            flagView.widthAnchor.constraint(equalToConstant: 25),
+            flagView.heightAnchor.constraint(equalToConstant: 35)
+        ])
     }
 
     override func layoutSubviews() {
@@ -88,6 +113,27 @@ class FilmCell: UITableViewCell {
                 }
             }
         }
+        updateCellState()
+    }
+
+    private func updateCellState() {
+        if filmViewedManager.isViewed(with: (viewModel?.film.id)!) {
+            contentView.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.1)
+        } else {
+            contentView.backgroundColor = .clear
+        }
+
+        if filmViewedManager.isMarkedForWatching(with: (viewModel?.film.id)!) {
+            flagView.isHidden = false
+        } else {
+            flagView.isHidden = true
+        }
+    }
+
+    @objc
+    private func menuButtonTapped() {
+        guard let film = viewModel?.film else { return }
+        delegate?.filmCellDidTapMenu(self, film: film, sourceView: menuButton)
     }
 
     override func prepareForReuse() {
