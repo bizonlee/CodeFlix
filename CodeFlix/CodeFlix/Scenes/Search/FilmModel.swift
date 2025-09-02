@@ -6,6 +6,7 @@
 //
 
 struct Film: Decodable {
+    let id: Int
     let title: String
     let year: Int?
     let poster: Poster?
@@ -17,6 +18,7 @@ struct Film: Decodable {
     let alternativeName: String?
 
     private enum CodingKeys: String, CodingKey {
+        case id
         case title = "name"
         case year
         case poster
@@ -43,8 +45,4 @@ struct Genres: Decodable {
 
 struct FilmsSearchResponse: Decodable {
     let docs: [Film]
-
-//    enum CodingKeys: String, CodingKey {
-//        case films = "docs"
-//    }
 }

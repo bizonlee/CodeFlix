@@ -10,7 +10,7 @@ import UIKit
 final class SearchVC: UIViewController {
 
     private let viewModel = SearchViewModel()
-
+    private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
     private var searchTimer: Timer?
     private let debounceInterval: TimeInterval = 0.5
 
@@ -133,6 +133,9 @@ extension SearchVC: UITableViewDelegate {
         if indexPath.row == lastElement, let query = searchTextField.text, !query.isEmpty {
             viewModel.searchFilms(query: query, isNewSearch: false)
         }
+        if let filmCell = cell as? FilmCell {
+            filmCell.delegate = self
+        }
     }
 }
 
@@ -161,5 +164,94 @@ extension SearchVC {
         navigationController?.pushViewController(filmVC, animated: true)
         
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+extension SearchVC: FilmCellDelegate {
+    func filmCellDidTapMenu(_ cell: FilmCell, film: Film, sourceView: UIView) {
+        showMenuForFilm(film, sourceView: sourceView)
+    }
+
+    private func showMenuForFilm(_ film: Film, sourceView: UIView) {
+        let alertController = UIAlertController(
+            title: film.title,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        let watchLaterAction = UIAlertAction(
+            title: "Буду смотреть",
+            style: .default
+        ) { [weak self] _ in
+            self?.watchLaterTapped(for: film)
+        }
+
+        let viewedAction = UIAlertAction(
+            title: "Посмотрел",
+            style: .default
+        ) { [weak self] _ in
+            self?.viewedTapped(for: film)
+        }
+
+        let shareAction = UIAlertAction(
+            title: "Поделиться",
+            style: .default
+        ) { [weak self] _ in
+            self?.shareTapped(for: film)
+        }
+
+        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel)
+
+        alertController.addAction(watchLaterAction)
+        alertController.addAction(viewedAction)
+        alertController.addAction(shareAction)
+        alertController.addAction(cancelAction)
+
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = sourceView
+            popoverController.sourceRect = sourceView.bounds
+            popoverController.permittedArrowDirections = [.up]
+        }
+
+        present(alertController, animated: true)
+    }
+
+    private func watchLaterTapped(for film: Film) {
+        let isCurrentlyMarked = filmViewedManager.isMarkedForWatching(with: film.id)
+
+        if isCurrentlyMarked {
+            filmViewedManager.removeFilmFromWatchLater(with: film.id)
+        } else {
+            filmViewedManager.markForWatching(with: film.id)
+        }
+
+        if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {
+
+            // хотел сделать по другому, думал на тап по ячейке запоминать индекс и если тап по ячейке и заодно это тап по кнопке 3 точки, то тогда запоминаем индекс и его уже обновляем, но вроде так проще получилось кодом. может в производительости проигрывает, я хз оставлю так, но и так оптимизиовал норм вместо reloadData всей таблицы, я считаю
+
+            let indexPath = IndexPath(row: index, section: 0)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+
+            
+        }
+    }
+
+    private func viewedTapped(for film: Film) {
+        let isCurrentlyViewed = filmViewedManager.isViewed(with: film.id)
+
+        if isCurrentlyViewed {
+            filmViewedManager.removeFilmFromViewed(with: film.id)
+        } else {
+            filmViewedManager.markFilmAsViewed(with: film.id)
+        }
+
+        if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {
+            let indexPath = IndexPath(row: index, section: 0)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
+    }
+
+    private func shareTapped(for film: Film) {
+        print("Поделиться: \(film.title)")
     }
 }
