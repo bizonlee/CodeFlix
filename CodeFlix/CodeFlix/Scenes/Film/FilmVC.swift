@@ -134,16 +134,15 @@ final class FilmVC: UIViewController {
     }
 
     private func setupActionBar() {
-        let items: [(UIImage, String)] = [
-            (FilmActionsType.like.image, FilmActionsType.like.title),
-            (FilmActionsType.watchLater.image, FilmActionsType.watchLater.title),
-            (FilmActionsType.share.image, FilmActionsType.share.title),
-            (FilmActionsType.more.image, FilmActionsType.more.title)
+        let items: [CustomActionButton] = [
+            CustomActionButton(typeAction: FilmActionsType.like),
+            CustomActionButton(typeAction: FilmActionsType.watchLater),
+            CustomActionButton(typeAction: FilmActionsType.share),
+            CustomActionButton(typeAction: FilmActionsType.more),
         ]
 
         for item in items {
-            let itemStack = creatingImageWithLabel(image: item.0, text: item.1)
-            actionBar.addArrangedSubview(itemStack)
+            actionBar.addArrangedSubview(item)
         }
 
         actionBar.axis = .horizontal
@@ -174,11 +173,6 @@ final class FilmVC: UIViewController {
         stack.axis = .vertical
         stack.spacing = 5
         return stack
-    }
-
-    @objc
-    func likeTapped() {
-        
     }
 
     //MARK: - Layout
@@ -241,38 +235,5 @@ final class FilmVC: UIViewController {
             filmDescription.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             filmDescription.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -90)
         ])
-    }
-}
-
-enum FilmActionsType {
-    case like
-    case watchLater
-    case share
-    case more
-
-    var title: String {
-        switch self {
-        case .like:
-            "Лайк"
-        case .watchLater:
-            "Буду смотреть"
-        case .share:
-            "Поделиться"
-        case .more:
-            "Ещё"
-        }
-    }
-
-    var image: UIImage {
-        switch self {
-        case .like:
-            UIImage(systemName: "heart") ?? UIImage()
-        case .watchLater:
-            UIImage(systemName: "bookmark") ?? UIImage()
-        case .share:
-            UIImage(systemName: "square.and.arrow.up") ?? UIImage()
-        case .more:
-            UIImage(systemName: "ellipsis") ?? UIImage()
-        }
     }
 }
