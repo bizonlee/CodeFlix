@@ -68,4 +68,37 @@ class ApiService {
             }
         }
     }
+
+    func fetchMoviesByIds(ids: [Int], completion: @escaping (Result<[Film], Error>) -> Void) {
+        guard !ids.isEmpty else {
+            completion(.success([]))
+            return
+        }
+
+        var urlComponents = URLComponents(string: baseUrl)!
+        var queryItems = [
+            URLQueryItem(name: "page", value: "1"),
+            URLQueryItem(name: "limit", value: "\(ids.count)")
+        ]
+
+        for id in ids {
+            queryItems.append(URLQueryItem(name: "id", value: "\(id)"))
+        }
+
+        urlComponents.queryItems = queryItems
+
+        guard let url = urlComponents.url else {
+            completion(.failure(URLError(.badURL)))
+            return
+        }
+
+        performRequest(url: url) { (result: Result<FilmsSearchResponse, Error>) in
+            switch result {
+            case .success(let response):
+                completion(.success(response.docs))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
 }

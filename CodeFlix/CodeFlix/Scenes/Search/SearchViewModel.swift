@@ -17,6 +17,7 @@ class SearchViewModel {
     weak var delegate: SearchViewModelDelegate?
     private let searchService = ApiService()
     private let imageService = ImageService.shared
+    private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
     var films: [Film] = []
     private var imageLoadTasks: [IndexPath: UUID] = [:]
     private var currentPage = 1
@@ -68,6 +69,26 @@ class SearchViewModel {
                     self?.films = []
 
                     self?.delegate?.showErrorAlert(message: "Не удалось загрузить популярные фильмы: \(error.localizedDescription)")
+                }
+                self?.delegate?.updateUI(with: self?.films ?? [])
+            }
+        }
+    }
+
+    func fetchFilmsByIds() {
+
+        let favoriteIds = filmViewedManager.getViewedFilmIds()
+
+
+        searchService.fetchMoviesByIds(ids: favoriteIds) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let films):
+                    self?.films = films
+                case .failure(let error):
+                    print("Films by IDs error: \(error.localizedDescription)")
+                    self?.films = []
+                    self?.delegate?.showErrorAlert(message: "Не удалось загрузить избранные фильмы")
                 }
                 self?.delegate?.updateUI(with: self?.films ?? [])
             }

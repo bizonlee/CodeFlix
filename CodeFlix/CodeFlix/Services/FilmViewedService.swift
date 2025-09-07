@@ -15,6 +15,7 @@ protocol FilmViewedManagerProtocol {
     func removeFilmFromViewed(with filmId: Int)
     func removeFilmFromWatchLater(with filmId: Int)
 
+    func getViewedFilmIds() -> [Int]
 }
 
 final class FilmViewedManager {
@@ -35,11 +36,11 @@ extension FilmViewedManager: FilmViewedManagerProtocol {
     func removeFilmFromViewed(with filmId: Int) {
         userDefaults.removeObject(forKey: viewedKey(for: filmId))
     }
-    
+
     func removeFilmFromWatchLater(with filmId: Int) {
         userDefaults.removeObject(forKey: forWatchingKey(for: filmId))
     }
-    
+
     func isViewed(with filmId: Int) -> Bool {
         userDefaults.bool(forKey: viewedKey(for: filmId))
     }
@@ -54,5 +55,21 @@ extension FilmViewedManager: FilmViewedManagerProtocol {
 
     func isMarkedForWatching(with filmId: Int) -> Bool {
         userDefaults.bool(forKey: forWatchingKey(for: filmId))
+    }
+
+    func getViewedFilmIds() -> [Int] {
+        let allKeys = userDefaults.dictionaryRepresentation().keys
+
+        return allKeys
+            .filter { $0.hasPrefix(viewedKey) }
+            .compactMap { key -> Int? in
+                let idString = key.replacingOccurrences(of: viewedKey, with: "")
+
+                guard let filmId = Int(idString),
+                      userDefaults.bool(forKey: key) == true else {
+                    return nil
+                }
+                return filmId
+            }
     }
 }
