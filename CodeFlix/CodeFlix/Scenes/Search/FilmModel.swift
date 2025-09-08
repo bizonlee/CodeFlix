@@ -16,6 +16,7 @@ struct Film: Decodable {
     let description: String?
     let type: String?
     let alternativeName: String?
+    let rating: Rating
 
     private enum CodingKeys: String, CodingKey {
         case id
@@ -28,6 +29,7 @@ struct Film: Decodable {
         case description
         case type
         case alternativeName
+        case rating
     }
 }
 
@@ -45,4 +47,8 @@ struct Genres: Decodable {
 
 struct FilmsSearchResponse: Decodable {
     let docs: [Film]
+}
+
+struct Rating: Decodable {
+    let imdb: Double?
 }

@@ -21,6 +21,7 @@ class FilmCellLayout {
     var menuButtonFrame = CGRect.zero
     var titleLabelFrame = CGRect.zero
     var releaseDateLabelFrame = CGRect.zero
+    var ratingLabelFrame = CGRect.zero
     var cellSize = CGSize.zero
 
     func calculateLayout(for cellWidth: CGFloat,
@@ -52,6 +53,15 @@ class FilmCellLayout {
         yOffset += titleHeight + Constants.textSpacing
 
         releaseDateLabelFrame = CGRect(
+            x: textX,
+            y: yOffset,
+            width: textWidth,
+            height: dateHeight
+        )
+
+        yOffset += dateHeight + Constants.textSpacing
+
+        ratingLabelFrame = CGRect(
             x: textX,
             y: yOffset,
             width: textWidth,
