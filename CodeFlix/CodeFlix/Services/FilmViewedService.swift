@@ -58,18 +58,8 @@ extension FilmViewedManager: FilmViewedManagerProtocol {
     }
 
     func getViewedFilmIds() -> [Int] {
-        let allKeys = userDefaults.dictionaryRepresentation().keys
-
-        return allKeys
-            .filter { $0.hasPrefix(viewedKey) }
-            .compactMap { key -> Int? in
-                let idString = key.replacingOccurrences(of: viewedKey, with: "")
-
-                guard let filmId = Int(idString),
-                      userDefaults.bool(forKey: key) == true else {
-                    return nil
-                }
-                return filmId
-            }
+        return userDefaults.dictionaryRepresentation().keys
+            .filter { $0.hasPrefix(viewedKey) && userDefaults.bool(forKey: $0) }
+            .compactMap { Int($0.replacingOccurrences(of: viewedKey, with: "")) }
     }
 }
