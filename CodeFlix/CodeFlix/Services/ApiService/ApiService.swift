@@ -75,7 +75,11 @@ class ApiService {
             return
         }
 
-        var urlComponents = URLComponents(string: baseUrl)!
+        guard var urlComponents = URLComponents(string: baseUrl) else {
+            completion(.failure(URLError(.badURL)))
+            return
+        }
+
         var queryItems = [
             URLQueryItem(name: "page", value: "1"),
             URLQueryItem(name: "limit", value: "\(ids.count)")

@@ -11,7 +11,7 @@ final class FavoriteViewModel {
 
     private let searchService = ApiService()
     private let imageService = ImageService.shared
-    var films: [Film] = []
+    private(set) var films: [Film] = []
     private var imageLoadTasks: [IndexPath: UUID] = [:]
     private var currentPage = 1
     private var isLoading = false

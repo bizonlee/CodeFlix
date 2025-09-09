@@ -9,6 +9,8 @@ import UIKit
 
 final class SearchVC: UIViewController {
 
+    private lazy var factory = FilmActionsFactory(filmViewedManager: filmViewedManager)
+
     private let viewModel = SearchViewModel()
     private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
     private var searchTimer: Timer?
@@ -142,13 +144,7 @@ extension SearchVC: UITableViewDelegate {
 
 extension SearchVC: SearchViewModelDelegate {
     func showErrorAlert(message: String) {
-        let alert = UIAlertController(
-            title: "Ошибка",
-            message: message,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+        showErrorAlertController(message: message)
     }
 
     func updateUI(with films: [Film]) {
@@ -169,89 +165,14 @@ extension SearchVC {
 
 extension SearchVC: FilmCellDelegate {
     func filmCellDidTapMenu(_ cell: FilmCell, film: Film, sourceView: UIView) {
-        showMenuForFilm(film, sourceView: sourceView)
-    }
-
-    private func showMenuForFilm(_ film: Film, sourceView: UIView) {
-        let alertController = UIAlertController(
-            title: film.title,
-            message: nil,
-            preferredStyle: .actionSheet
-        )
-
-        let watchLaterAction = UIAlertAction(
-            title: "Буду смотреть",
-            style: .default
-        ) { [weak self] _ in
-            self?.watchLaterTapped(for: film)
+        factory.onReload = { [weak self] film in
+            guard let self else { return }
+            if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {
+                let indexPath = IndexPath(row: index, section: 0)
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
         }
-
-        let viewedAction = UIAlertAction(
-            title: "Посмотрел",
-            style: .default
-        ) { [weak self] _ in
-            self?.viewedTapped(for: film)
-        }
-
-        let shareAction = UIAlertAction(
-            title: "Поделиться",
-            style: .default
-        ) { [weak self] _ in
-            self?.shareTapped(for: film)
-        }
-
-        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel)
-
-        alertController.addAction(watchLaterAction)
-        alertController.addAction(viewedAction)
-        alertController.addAction(shareAction)
-        alertController.addAction(cancelAction)
-
-        if let popoverController = alertController.popoverPresentationController {
-            popoverController.sourceView = sourceView
-            popoverController.sourceRect = sourceView.bounds
-            popoverController.permittedArrowDirections = [.up]
-        }
-
-        present(alertController, animated: true)
-    }
-
-    private func watchLaterTapped(for film: Film) {
-        let isCurrentlyMarked = filmViewedManager.isMarkedForWatching(with: film.id)
-
-        if isCurrentlyMarked {
-            filmViewedManager.removeFilmFromWatchLater(with: film.id)
-        } else {
-            filmViewedManager.markForWatching(with: film.id)
-        }
-
-        if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {
-
-            // хотел сделать по другому, думал на тап по ячейке запоминать индекс и если тап по ячейке и заодно это тап по кнопке 3 точки, то тогда запоминаем индекс и его уже обновляем, но вроде так проще получилось кодом. может в производительости проигрывает, я хз оставлю так, но и так оптимизиовал норм вместо reloadData всей таблицы, я считаю
-
-            let indexPath = IndexPath(row: index, section: 0)
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-
-            
-        }
-    }
-
-    private func viewedTapped(for film: Film) {
-        let isCurrentlyViewed = filmViewedManager.isViewed(with: film.id)
-
-        if isCurrentlyViewed {
-            filmViewedManager.removeFilmFromViewed(with: film.id)
-        } else {
-            filmViewedManager.markFilmAsViewed(with: film.id)
-        }
-
-        if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {
-            let indexPath = IndexPath(row: index, section: 0)
-            tableView.reloadRows(at: [indexPath], with: .automatic)
-        }
-    }
-
-    private func shareTapped(for film: Film) {
-        print("Поделиться: \(film.title)")
+        let controller = factory.makeMenuController(for: film, sourceView: sourceView)
+        present(controller, animated: true)
     }
 }
