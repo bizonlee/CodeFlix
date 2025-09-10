@@ -40,6 +40,13 @@ class FilmCell: UITableViewCell {
         return label
     }()
 
+    lazy var ratingLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = .systemGray
+        return label
+    }()
+
     private lazy var menuButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
@@ -67,7 +74,7 @@ class FilmCell: UITableViewCell {
     }
 
     private func setupViews() {
-        for item in [previewImageView, titleLabel, releaseDateLabel, menuButton] {
+        for item in [previewImageView, titleLabel, releaseDateLabel, ratingLabel, menuButton] {
             contentView.addSubview(item)
         }
     }
@@ -87,6 +94,7 @@ class FilmCell: UITableViewCell {
         previewImageView.frame = layout.previewImageViewFrame
         titleLabel.frame = layout.titleLabelFrame
         releaseDateLabel.frame = layout.releaseDateLabelFrame
+        ratingLabel.frame = layout.ratingLabelFrame
         menuButton.frame = layout.menuButtonFrame
     }
 
@@ -102,6 +110,7 @@ class FilmCell: UITableViewCell {
 
         titleLabel.text = viewModel.film.title
         releaseDateLabel.text = viewModel.film.year.map { String($0) } ?? ""
+        ratingLabel.text = viewModel.film.rating.imdb.map { String($0) } ?? ""
         previewImageView.image = nil
         let currentUrl = viewModel.film.poster?.url
 
@@ -141,6 +150,7 @@ class FilmCell: UITableViewCell {
         previewImageView.image = nil
         titleLabel.text = nil
         releaseDateLabel.text = nil
+        ratingLabel.text = nil
         viewModel?.cancelImageDownloadTask()
         viewModel = nil
     }
