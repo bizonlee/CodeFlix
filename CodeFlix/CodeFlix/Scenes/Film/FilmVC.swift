@@ -44,7 +44,7 @@ final class FilmVC: UIViewController {
     }
     
     //MARK: - Setup
-    
+
     private func setupUI() {
         view.backgroundColor = .secondarySystemBackground
 
@@ -72,7 +72,9 @@ final class FilmVC: UIViewController {
             contentView.addSubview($0)
         }
     }
-    
+
+    //MARK: - Setup Film Info
+
     private func setupFilmCover() {
         filmCover.contentMode = .scaleAspectFit
         filmCover.clipsToBounds = true
@@ -133,22 +135,60 @@ final class FilmVC: UIViewController {
         filmCountriesAndLength.numberOfLines = 0
     }
 
-    private func setupActionBar() {
-        let items: [(UIImage, String)] = [
-            (FilmActionsType.like.image, FilmActionsType.like.title),
-            (FilmActionsType.watchLater.image, FilmActionsType.watchLater.title),
-            (FilmActionsType.share.image, FilmActionsType.share.title),
-            (FilmActionsType.more.image, FilmActionsType.more.title)
-        ]
+    //MARK: - Setup ActionBar
 
-        for item in items {
-            let itemStack = creatingImageWithLabel(image: item.0, text: item.1)
-            actionBar.addArrangedSubview(itemStack)
+    private func setupActionBar() {
+
+        for type in FilmActionsType.allCases {
+            let button = CustomActionButton()
+            button.setupImage(type.imageNormalState, for: .normal)
+            button.setupImage(type.imageSelectedState, for: .selected)
+            button.setupTitle(type.title)
+            button.onTap = {
+                switch type {
+                case .like:
+                    self.likeTapped(button)
+                case .watchLater:
+                    self.watchLaterTapped(button)
+                case .share:
+                    self.shareTapped()
+                case .more:
+                    self.moreTapped()
+                }
+            }
+
+            actionBar.addArrangedSubview(button)
         }
 
         actionBar.axis = .horizontal
         actionBar.distribution = .fillEqually
     }
+
+    @objc
+    func likeTapped(_ button: CustomActionButton) {
+        print("like tapped")
+        button.changeSelectedState()
+    }
+
+    @objc
+    func watchLaterTapped(_ button: CustomActionButton) {
+        print("Watch later tapped")
+        button.changeSelectedState()
+    }
+
+    @objc
+    func shareTapped() {
+        print("Share tapped")
+
+    }
+
+    @objc
+    func moreTapped() {
+        print("More tapped")
+
+    }
+
+    // MARK: - Setup Description
 
     private func setupDescription() {
         filmDescription.text = film.description
@@ -156,29 +196,6 @@ final class FilmVC: UIViewController {
         filmDescription.font = .systemFont(ofSize: 16, weight: .light)
         filmDescription.textColor = .label
         filmDescription.numberOfLines = 0
-    }
-
-    func creatingImageWithLabel(image: UIImage, text: String) -> UIStackView {
-        let button = UIButton(type: .system)
-        button.setImage(image, for: .normal)
-        button.tintColor = .secondaryLabel
-        button.imageView?.contentMode = .scaleAspectFit
-
-        let label = UILabel()
-        label.text = text
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 10)
-        label.textColor = .secondaryLabel
-
-        let stack = UIStackView(arrangedSubviews: [button, label])
-        stack.axis = .vertical
-        stack.spacing = 5
-        return stack
-    }
-
-    @objc
-    func likeTapped() {
-        
     }
 
     //MARK: - Layout
@@ -241,38 +258,5 @@ final class FilmVC: UIViewController {
             filmDescription.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             filmDescription.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -90)
         ])
-    }
-}
-
-enum FilmActionsType {
-    case like
-    case watchLater
-    case share
-    case more
-
-    var title: String {
-        switch self {
-        case .like:
-            "Лайк"
-        case .watchLater:
-            "Буду смотреть"
-        case .share:
-            "Поделиться"
-        case .more:
-            "Ещё"
-        }
-    }
-
-    var image: UIImage {
-        switch self {
-        case .like:
-            UIImage(systemName: "heart") ?? UIImage()
-        case .watchLater:
-            UIImage(systemName: "bookmark") ?? UIImage()
-        case .share:
-            UIImage(systemName: "square.and.arrow.up") ?? UIImage()
-        case .more:
-            UIImage(systemName: "ellipsis") ?? UIImage()
-        }
     }
 }
