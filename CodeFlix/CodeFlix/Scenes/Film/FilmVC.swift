@@ -44,7 +44,7 @@ final class FilmVC: UIViewController {
     }
     
     //MARK: - Setup
-    
+
     private func setupUI() {
         view.backgroundColor = .secondarySystemBackground
 
@@ -72,7 +72,9 @@ final class FilmVC: UIViewController {
             contentView.addSubview($0)
         }
     }
-    
+
+    //MARK: - Setup Film Info
+
     private func setupFilmCover() {
         filmCover.contentMode = .scaleAspectFit
         filmCover.clipsToBounds = true
@@ -133,21 +135,60 @@ final class FilmVC: UIViewController {
         filmCountriesAndLength.numberOfLines = 0
     }
 
-    private func setupActionBar() {
-        let items: [CustomActionButton] = [
-            CustomActionButton(typeAction: FilmActionsType.like),
-            CustomActionButton(typeAction: FilmActionsType.watchLater),
-            CustomActionButton(typeAction: FilmActionsType.share),
-            CustomActionButton(typeAction: FilmActionsType.more),
-        ]
+    //MARK: - Setup ActionBar
 
-        for item in items {
-            actionBar.addArrangedSubview(item)
+    private func setupActionBar() {
+
+        for type in FilmActionsType.allCases {
+            let button = CustomActionButton()
+            button.setupImage(type.imageNormalState, for: .normal)
+            button.setupImage(type.imageSelectedState, for: .selected)
+            button.setupTitle(type.title)
+            button.onTap = {
+                switch type {
+                case .like:
+                    self.likeTapped(button)
+                case .watchLater:
+                    self.watchLaterTapped(button)
+                case .share:
+                    self.shareTapped()
+                case .more:
+                    self.moreTapped()
+                }
+            }
+
+            actionBar.addArrangedSubview(button)
         }
 
         actionBar.axis = .horizontal
         actionBar.distribution = .fillEqually
     }
+
+    @objc
+    func likeTapped(_ button: CustomActionButton) {
+        print("like tapped")
+        button.changeSelectedState()
+    }
+
+    @objc
+    func watchLaterTapped(_ button: CustomActionButton) {
+        print("Watch later tapped")
+        button.changeSelectedState()
+    }
+
+    @objc
+    func shareTapped() {
+        print("Share tapped")
+
+    }
+
+    @objc
+    func moreTapped() {
+        print("More tapped")
+
+    }
+
+    // MARK: - Setup Description
 
     private func setupDescription() {
         filmDescription.text = film.description
@@ -155,24 +196,6 @@ final class FilmVC: UIViewController {
         filmDescription.font = .systemFont(ofSize: 16, weight: .light)
         filmDescription.textColor = .label
         filmDescription.numberOfLines = 0
-    }
-
-    func creatingImageWithLabel(image: UIImage, text: String) -> UIStackView {
-        let button = UIButton(type: .system)
-        button.setImage(image, for: .normal)
-        button.tintColor = .secondaryLabel
-        button.imageView?.contentMode = .scaleAspectFit
-
-        let label = UILabel()
-        label.text = text
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 10)
-        label.textColor = .secondaryLabel
-
-        let stack = UIStackView(arrangedSubviews: [button, label])
-        stack.axis = .vertical
-        stack.spacing = 5
-        return stack
     }
 
     //MARK: - Layout

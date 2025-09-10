@@ -4,26 +4,30 @@
 //
 //  Created by Gryaznoy Alexander on 07.09.2025.
 //
+
 import UIKit
 
-final class CustomActionButton: UIButton {
+extension UIControl.State: @retroactive Hashable {
+
+}
+
+final class CustomActionButton: UIControl {
 
     // MARK: - Private properties
 
-    private var imageButton = UIImageView()
-    private var title = UILabel()
+    private let imageButton = UIImageView()
+    private let title = UILabel()
+    private var images: [UIControl.State: UIImage] = [:]
 
-    private var actionType: FilmActionsType
-    private var isSelect: Bool = false
+    var onTap: (() -> Void)?
 
     // MARK: - init
 
-    init(typeAction: FilmActionsType) {
-        actionType = typeAction
+    init() {
         super.init(frame: .zero)
-
         setup()
-        setupAction(typeAction: typeAction)
+
+        addTarget(self, action: #selector(handleTap), for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {
@@ -31,15 +35,22 @@ final class CustomActionButton: UIButton {
     }
 
     func setup() {
-        setupImage()
-        setupTitle()
+        setupImageUI()
+        setupTitleUI()
     }
 
     //MARK: - Setup Image
 
-    func setupImage() {
-        title.text = actionType.title
+    func setupImage(_ image: UIImage?, for state: UIControl.State) {
+        guard let image = image else { return }
 
+        if state == .normal {
+            self.imageButton.image = image
+        }
+        images[state] = image
+    }
+
+    func setupImageUI() {
         addSubview(imageButton)
 
         imageButton.tintColor = .secondaryLabel
@@ -58,9 +69,11 @@ final class CustomActionButton: UIButton {
 
     //MARK: - Setup Title
 
-    func setupTitle() {
-        imageButton.image = actionType.imageNormalState
+    func setupTitle(_ title: String) {
+        self.title.text = title
+    }
 
+    func setupTitleUI() {
         addSubview(title)
 
         title.textAlignment = .center
@@ -79,46 +92,9 @@ final class CustomActionButton: UIButton {
 
     //MARK: - Setup Actions
 
-    func setupAction(typeAction: FilmActionsType) {
-        switch typeAction {
-        case .like:
-            self.addTarget(self, action: #selector(likeTapped), for: .touchUpInside)
-        case .watchLater:
-            addTarget(self, action: #selector(watchLaterTapped), for: .touchUpInside)
-        case .share:
-            addTarget(self, action: #selector(shareTapped), for: .touchUpInside)
-        case .more:
-            addTarget(self, action: #selector(moreTapped), for: .touchUpInside)
-        }
-    }
-
-    @objc
-    func likeTapped() {
-        print("Like tapped")
-        changeSelectedState()
-    }
-
-    @objc
-    func watchLaterTapped() {
-        print("Watch later tapped")
-        changeSelectedState()
-    }
-
-    @objc
-    func shareTapped() {
-        print("Share tapped")
-
-    }
-
-    @objc
-    func moreTapped() {
-        print("More tapped")
-
-    }
-
     func changeSelectedState() {
-        isSelect.toggle()
-        let newImage = isSelect ? actionType.imageSelectedState : actionType.imageNormalState
+        isSelected.toggle()
+        let newImage = isSelected ? images[.selected] : images[.normal]
         UIView.transition(
             with: imageButton,
             duration: 0.3,
@@ -127,9 +103,14 @@ final class CustomActionButton: UIButton {
             self.imageButton.image = newImage
         })
     }
+
+    @objc
+    private func handleTap() {
+        onTap?()
+    }
 }
 
-enum FilmActionsType {
+enum FilmActionsType: CaseIterable {
     case like
     case watchLater
     case share
