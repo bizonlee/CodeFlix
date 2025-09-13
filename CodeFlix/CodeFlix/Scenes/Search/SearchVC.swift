@@ -66,7 +66,12 @@ final class SearchVC: UIViewController {
         viewModel.delegate = self
         setupViews()
         setupConstraints()
+        FilmNotificationCenter.shared.addObserver(self)
         viewModel.fetchPopularFilms()
+    }
+
+    deinit {
+        FilmNotificationCenter.shared.removeObserver(self)
     }
 
     private func setupViews() {
@@ -174,5 +179,16 @@ extension SearchVC: FilmCellDelegate {
         }
         let controller = factory.makeMenuController(for: film, sourceView: sourceView)
         present(controller, animated: true)
+    }
+}
+
+extension SearchVC: FilmObserver {
+    func filmDidUpdate(_ film: Film) {
+        DispatchQueue.main.async {
+            if let index = self.viewModel.films.firstIndex(where: { $0.id == film.id }) {
+                let indexPath = IndexPath(row: index, section: 0)
+                self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        }
     }
 }

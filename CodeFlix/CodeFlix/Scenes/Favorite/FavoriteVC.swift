@@ -39,7 +39,12 @@ final class FavoriteVC: UIViewController {
         viewModel.delegate = self
         title = "Лайки"
         setupViews()
+        FilmNotificationCenter.shared.addObserver(self)
         viewModel.fetchFilmsByIds()
+    }
+
+    deinit {
+        FilmNotificationCenter.shared.removeObserver(self)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -111,5 +116,20 @@ extension FavoriteVC: FilmCellDelegate {
         }
         let controller = factory.makeMenuController(for: film, sourceView: sourceView)
         present(controller, animated: true)
+    }
+}
+
+extension FavoriteVC: FilmObserver {
+    func filmDidUpdate(_ film: Film) {
+        DispatchQueue.main.async {
+            if !FilmViewedManager().isViewed(with: film.id) && !FilmViewedManager().isMarkedForWatching(with: film.id) {
+                self.viewModel.fetchFilmsByIds()
+            } else {
+                if let index = self.viewModel.films.firstIndex(where: { $0.id == film.id }) {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                }
+            }
+        }
     }
 }

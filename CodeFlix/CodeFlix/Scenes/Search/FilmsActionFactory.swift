@@ -69,6 +69,7 @@ final class FilmActionsFactory {
         }
 
         onReload?(film)
+        FilmNotificationCenter.shared.notifyFilmUpdate(film)
     }
 
     private func viewedTapped(for film: Film) {
@@ -81,6 +82,7 @@ final class FilmActionsFactory {
         }
 
         onReload?(film)
+        FilmNotificationCenter.shared.notifyFilmUpdate(film)
     }
 
     private func shareTapped(for film: Film) {
