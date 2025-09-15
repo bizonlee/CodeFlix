@@ -14,20 +14,25 @@ class ProfileViewViewModel: ObservableObject {
     @Published var forWatchingTime: Int = 0
     @Published var progress: Double = 0
     @Published var progressPercentage: String = "0"
+    @Published var remainingTime: Int = 0
+    @Published var totalTime: Int = 0
 
     func loadTimeInfo() {
         watchedTime = filmViewedManager.getTotalWatchedTime()
         forWatchingTime = filmViewedManager.getTotalForWatchingTime()
+        totalTime = watchedTime + forWatchingTime
+        remainingTime = totalTime - watchedTime
+        progress = Double(watchedTime) / Double(totalTime)
         progressPercentage = calculateProgress()
-        progress = Double(watchedTime) / Double(forWatchingTime)
     }
 
     func calculateProgress() -> String {
-        guard forWatchingTime > 0 else {
+        guard totalTime > 0 else {
             return "0"
         }
-        progress = Double(watchedTime) / Double(forWatchingTime)
+        progress = Double(watchedTime) / Double(totalTime)
         progressPercentage = String(format: "%.1f", progress * 100)
         return progressPercentage
     }
 }
+
