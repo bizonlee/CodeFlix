@@ -39,6 +39,24 @@ final class CustomActionButton: UIControl {
         setupTitleUI()
     }
 
+    func updateAppearance() {
+        let newImage = isSelected ? images[.selected] : images[.normal]
+        UIView.transition(
+            with: imageButton,
+            duration: 0.3,
+            options: .transitionCrossDissolve,
+            animations: {
+                self.imageButton.image = newImage
+            }
+        )
+    }
+
+    override var isSelected: Bool {
+        didSet {
+            updateAppearance()
+        }
+    }
+
     //MARK: - Setup Image
 
     func setupImage(_ image: UIImage?, for state: UIControl.State) {

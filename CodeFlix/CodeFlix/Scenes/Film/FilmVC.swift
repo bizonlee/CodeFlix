@@ -4,16 +4,18 @@
 //
 //  Created by Gryaznoy Alexander on 17.08.2025.
 //
+
 import UIKit
 
 final class FilmVC: UIViewController {
     
     // MARK: - Private properties
     private let film: Film
+    private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
 
     let scrollView: UIScrollView = UIScrollView()
     private let contentView: UIView = UIView()
-    
+
     private let filmCover = UIImageView()
     private let filmTitle = UILabel()
     private let ratingAndAlternativeName = UILabel()
@@ -21,7 +23,9 @@ final class FilmVC: UIViewController {
     private let filmCountriesAndLength: UILabel = UILabel()
     private let actionBar: UIStackView = UIStackView()
     private let filmDescription: UILabel = UILabel()
-    
+    private var likeButton: CustomActionButton?
+    private var watchLaterButton: CustomActionButton?
+
     // MARK: - init
     
     init(film: Film) {
@@ -41,8 +45,31 @@ final class FilmVC: UIViewController {
         setPoster()
         setupUI()
         setupLayout()
+        FilmNotificationCenter.shared.addObserver(self)
+        updateActionButtonsState()
     }
-    
+
+    deinit {
+        FilmNotificationCenter.shared.removeObserver(self)
+    }
+
+    private func updateActionButtonsState() {
+        for case let button as CustomActionButton in actionBar.arrangedSubviews {
+            if let index = actionBar.arrangedSubviews.firstIndex(of: button) {
+                let actionType = FilmActionsType.allCases[index]
+
+                switch actionType {
+                case .like:
+                    button.isSelected = filmViewedManager.isViewed(with: film.id)
+                case .watchLater:
+                    button.isSelected = filmViewedManager.isMarkedForWatching(with: film.id)
+                default:
+                    break
+                }
+            }
+        }
+    }
+
     //MARK: - Setup
 
     private func setupUI() {
@@ -138,22 +165,30 @@ final class FilmVC: UIViewController {
     //MARK: - Setup ActionBar
 
     private func setupActionBar() {
-
         for type in FilmActionsType.allCases {
             let button = CustomActionButton()
             button.setupImage(type.imageNormalState, for: .normal)
             button.setupImage(type.imageSelectedState, for: .selected)
             button.setupTitle(type.title)
-            button.onTap = {
-                switch type {
-                case .like:
-                    self.likeTapped(button)
-                case .watchLater:
-                    self.watchLaterTapped(button)
-                case .share:
-                    self.shareTapped()
-                case .more:
-                    self.moreTapped()
+
+            switch type {
+            case .like:
+                likeButton = button
+                button.onTap = { [weak self] in
+                    self?.likeTapped(button)
+                }
+            case .watchLater:
+                watchLaterButton = button
+                button.onTap = { [weak self] in
+                    self?.watchLaterTapped(button)
+                }
+            case .share:
+                button.onTap = { [weak self] in
+                    self?.shareTapped()
+                }
+            case .more:
+                button.onTap = { [weak self] in
+                    self?.moreTapped()
                 }
             }
 
@@ -162,22 +197,38 @@ final class FilmVC: UIViewController {
 
         actionBar.axis = .horizontal
         actionBar.distribution = .fillEqually
+        actionBar.spacing = 10
+    }
+
+    private func updateButtonsState() {
+        likeButton?.isSelected = filmViewedManager.isViewed(with: film.id)
+        watchLaterButton?.isSelected = filmViewedManager.isMarkedForWatching(with: film.id)
     }
 
     @objc
-    func likeTapped(_ button: CustomActionButton) {
-        print("like tapped")
-        button.changeSelectedState()
+    private func likeTapped(_ button: CustomActionButton) {
+        if filmViewedManager.isViewed(with: film.id) {
+            filmViewedManager.removeFilmFromViewed(with: film.id, film.movieLength ?? 0)
+        } else {
+            filmViewedManager.markFilmAsViewed(with: film.id, film.movieLength ?? 0)
+        }
+        updateButtonsState()
+        FilmNotificationCenter.shared.notifyFilmUpdate(film)
     }
 
     @objc
-    func watchLaterTapped(_ button: CustomActionButton) {
-        print("Watch later tapped")
-        button.changeSelectedState()
+    private func watchLaterTapped(_ button: CustomActionButton) {
+        if filmViewedManager.isMarkedForWatching(with: film.id) {
+            filmViewedManager.removeFilmFromWatchLater(with: film.id, film.movieLength ?? 0)
+        } else {
+            filmViewedManager.markForWatching(with: film.id,  film.movieLength ?? 0)
+        }
+        updateButtonsState()
+        FilmNotificationCenter.shared.notifyFilmUpdate(film)
     }
 
     @objc
-    func shareTapped() {
+    private func shareTapped() {
         print("Share tapped")
 
     }
@@ -258,5 +309,15 @@ final class FilmVC: UIViewController {
             filmDescription.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             filmDescription.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -90)
         ])
+    }
+}
+
+extension FilmVC: FilmObserver {
+    func filmDidUpdate(_ updatedFilm: Film) {
+        guard updatedFilm.id == film.id else { return }
+
+        DispatchQueue.main.async {
+            self.updateButtonsState()
+        }
     }
 }

@@ -68,7 +68,7 @@ final class TabBarController: UITabBarController {
         
         navigationController.tabBarItem.image = UIImage(systemName: "heart")
         navigationController.tabBarItem.selectedImage = UIImage(systemName: "heart.fill")
-        navigationController.tabBarItem.title = "Лайки"
+        navigationController.tabBarItem.title = "Избранное"
         
         return navigationController
     }
