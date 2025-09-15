@@ -77,7 +77,7 @@ class SearchViewModel {
 
     func fetchFilmsByIds() {
 
-        let favoriteIds = filmViewedManager.getViewedFilmIds()
+        let favoriteIds = filmViewedManager.getFavoritesIds()
 
 
         searchService.fetchMoviesByIds(ids: favoriteIds) { [weak self] result in

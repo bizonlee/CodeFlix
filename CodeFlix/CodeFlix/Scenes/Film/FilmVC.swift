@@ -208,9 +208,9 @@ final class FilmVC: UIViewController {
     @objc
     private func likeTapped(_ button: CustomActionButton) {
         if filmViewedManager.isViewed(with: film.id) {
-            filmViewedManager.removeFilmFromViewed(with: film.id)
+            filmViewedManager.removeFilmFromViewed(with: film.id, film.movieLength ?? 0)
         } else {
-            filmViewedManager.markFilmAsViewed(with: film.id)
+            filmViewedManager.markFilmAsViewed(with: film.id, film.movieLength ?? 0)
         }
         updateButtonsState()
         FilmNotificationCenter.shared.notifyFilmUpdate(film)
@@ -219,14 +219,14 @@ final class FilmVC: UIViewController {
     @objc
     private func watchLaterTapped(_ button: CustomActionButton) {
         if filmViewedManager.isMarkedForWatching(with: film.id) {
-            filmViewedManager.removeFilmFromWatchLater(with: film.id)
+            filmViewedManager.removeFilmFromWatchLater(with: film.id, film.movieLength ?? 0)
         } else {
-            filmViewedManager.markForWatching(with: film.id)
+            filmViewedManager.markForWatching(with: film.id,  film.movieLength ?? 0)
         }
         updateButtonsState()
         FilmNotificationCenter.shared.notifyFilmUpdate(film)
     }
-    
+
     @objc
     private func shareTapped() {
         print("Share tapped")

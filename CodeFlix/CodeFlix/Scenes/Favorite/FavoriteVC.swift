@@ -37,7 +37,7 @@ final class FavoriteVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.delegate = self
-        title = "Лайки"
+        title = "Избранное"
         setupViews()
         FilmNotificationCenter.shared.addObserver(self)
         viewModel.fetchFilmsByIds()

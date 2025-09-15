@@ -63,9 +63,9 @@ final class FilmActionsFactory {
         let isCurrentlyMarked = filmViewedManager.isMarkedForWatching(with: film.id)
 
         if isCurrentlyMarked {
-            filmViewedManager.removeFilmFromWatchLater(with: film.id)
+            filmViewedManager.removeFilmFromWatchLater(with: film.id, film.movieLength ?? 0)
         } else {
-            filmViewedManager.markForWatching(with: film.id)
+            filmViewedManager.markForWatching(with: film.id, film.movieLength ?? 0)
         }
 
         onReload?(film)
@@ -76,9 +76,9 @@ final class FilmActionsFactory {
         let isCurrentlyViewed = filmViewedManager.isViewed(with: film.id)
 
         if isCurrentlyViewed {
-            filmViewedManager.removeFilmFromViewed(with: film.id)
+            filmViewedManager.removeFilmFromViewed(with: film.id, film.movieLength ?? 0)
         } else {
-            filmViewedManager.markFilmAsViewed(with: film.id)
+            filmViewedManager.markFilmAsViewed(with: film.id, film.movieLength ?? 0)
         }
 
         onReload?(film)
