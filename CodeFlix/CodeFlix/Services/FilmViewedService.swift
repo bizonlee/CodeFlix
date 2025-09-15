@@ -63,8 +63,8 @@ extension FilmViewedManager: FilmViewedManagerProtocol {
     func markForWatching(with filmId: Int, _ duration: Int) {
         userDefaults.set(true, forKey: forWatchingKey(for: filmId))
 
-        let totalTime = userDefaults.integer(forKey: forWatchingKey)
-        userDefaults.set(totalTime + duration, forKey: forWatchingKey)
+        let totalTime = userDefaults.integer(forKey: forWatchingTotalKey)
+        userDefaults.set(totalTime + duration, forKey: forWatchingTotalKey)
         print("Всего собираюсь посмотреть добавил")
         print(userDefaults.integer(forKey: forWatchingKey))
     }

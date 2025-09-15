@@ -31,7 +31,7 @@ struct ProfileView: View {
                         Text("\(viewModel.watchedTime)м")
                             .font(.title3)
                             .fontWeight(.bold)
-                        Text("из \(viewModel.forWatchingTime)м")
+                        Text("из \(viewModel.totalTime)м")
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -51,7 +51,7 @@ struct ProfileView: View {
                         Circle()
                             .fill(Color.gray.opacity(0.3))
                             .frame(width: 12, height: 12)
-                        Text("Осталось: \(max(0, viewModel.forWatchingTime - viewModel.watchedTime))м")
+                        Text("Осталось: \(max(0, viewModel.remainingTime))м")
                             .font(.subheadline)
                     }
 
@@ -59,7 +59,7 @@ struct ProfileView: View {
                         Circle()
                             .fill(Color.clear)
                             .frame(width: 12, height: 12)
-                        Text("Всего: \(viewModel.forWatchingTime)м")
+                        Text("Всего: \(viewModel.totalTime)м")
                             .font(.subheadline)
                     }
                 }
