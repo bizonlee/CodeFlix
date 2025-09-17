@@ -28,10 +28,10 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(-90))
 
                     VStack {
-                        Text("\(viewModel.watchedTime)м")
+                        Text(viewModel.watchedTimeString)
                             .font(.title3)
                             .fontWeight(.bold)
-                        Text("из \(viewModel.totalTime)м")
+                        Text(viewModel.fromTotalText)
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -43,7 +43,7 @@ struct ProfileView: View {
                         Circle()
                             .fill(Color.blue)
                             .frame(width: 12, height: 12)
-                        Text("Посмотрел: \(viewModel.watchedTime)м")
+                        Text(viewModel.totalTimeText)
                             .font(.subheadline)
                     }
 
@@ -51,7 +51,7 @@ struct ProfileView: View {
                         Circle()
                             .fill(Color.gray.opacity(0.3))
                             .frame(width: 12, height: 12)
-                        Text("Осталось: \(max(0, viewModel.remainingTime))м")
+                        Text(viewModel.remainingTimeText)
                             .font(.subheadline)
                     }
 
@@ -59,7 +59,7 @@ struct ProfileView: View {
                         Circle()
                             .fill(Color.clear)
                             .frame(width: 12, height: 12)
-                        Text("Всего: \(viewModel.totalTime)м")
+                        Text(viewModel.totalTimeText)
                             .font(.subheadline)
                     }
                 }
@@ -74,35 +74,28 @@ struct ProfileView: View {
                     Text("Всего посмотрел")
                         .foregroundColor(.secondary)
                     Spacer()
-                    Text("\(viewModel.watchedTime) м")
+                    Text(viewModel.watchedTimeString)
                 }
 
                 HStack() {
                     Text("Планирую посмотреть")
                         .foregroundColor(.secondary)
                     Spacer()
-                    Text("\(viewModel.forWatchingTime) м")
-                }
-
-                HStack() {
-                    Text("Планирую посмотреть")
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Text("\(viewModel.forWatchingTime) м")
+                    Text(viewModel.forWatchingTimeString)
                 }
 
                 HStack() {
                     Text("Осталось")
                         .foregroundColor(.secondary)
                     Spacer()
-                    Text("\(max(0, viewModel.forWatchingTime - viewModel.watchedTime)) м")
+                    Text(viewModel.remainingTimeString)
                 }
 
                 HStack() {
                     Text("Процент просмотренного")
                         .foregroundColor(.secondary)
                     Spacer()
-                    Text("\(viewModel.progressPercentage)%")
+                    Text(viewModel.progressPercentage)
                 }
             }
         }
