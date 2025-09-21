@@ -1,0 +1,15 @@
+{
+  "originHash" : "e7be58e1e764aeb050eccfed469c3cd980257d163bdc1fb5b3fc973a821cea56",
+  "pins" : [
+    {
+      "identity" : "tracer-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/odnoklassniki/tracer-ios.git",
+      "state" : {
+        "revision" : "7e44ade377c7b6a8e52a491cb9373b728874d090",
+        "version" : "1.4.0"
+      }
+    }
+  ],
+  "version" : 3
+}

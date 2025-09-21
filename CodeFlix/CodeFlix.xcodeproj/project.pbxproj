@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F746C02F2E7F44460023A3DA /* OKTracerPackage in Frameworks */ = {isa = PBXBuildFile; productRef = F746C02E2E7F44460023A3DA /* OKTracerPackage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F797A7FC2E43DBE1003ECD27 /* CodeFlix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeFlix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F746C02F2E7F44460023A3DA /* OKTracerPackage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = CodeFlix;
 			packageProductDependencies = (
+				F746C02E2E7F44460023A3DA /* OKTracerPackage */,
 			);
 			productName = CodeFlix;
 			productReference = F797A7FC2E43DBE1003ECD27 /* CodeFlix.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = F797A7F32E43DBE1003ECD27;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F746C02D2E7F44460023A3DA /* XCRemoteSwiftPackageReference "tracer-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F797A7FD2E43DBE1003ECD27 /* Products */;
 			projectDirPath = "";
@@ -333,6 +342,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F746C02D2E7F44460023A3DA /* XCRemoteSwiftPackageReference "tracer-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/odnoklassniki/tracer-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F746C02E2E7F44460023A3DA /* OKTracerPackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F746C02D2E7F44460023A3DA /* XCRemoteSwiftPackageReference "tracer-ios" */;
+			productName = OKTracerPackage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F797A7F42E43DBE1003ECD27 /* Project object */;
 }
