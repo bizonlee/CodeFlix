@@ -13,6 +13,7 @@ class ApiService {
     private let apiKey = "EGPARVP-T1C4CP0-PJCZ9SE-6TH4NVG"
     private let baseUrl = "https://api.kinopoisk.dev/v1.3/movie"
     private let filmsCountPerPage: Int = 10
+    private let nameOfParamGenresName = "genres.name"
 
     private func performRequest<T: Decodable>(url: URL, completion: @escaping (Result<T, Error>) -> Void) {
         var request = URLRequest(url: url)
@@ -92,6 +93,31 @@ class ApiService {
         urlComponents.queryItems = queryItems
 
         guard let url = urlComponents.url else {
+            completion(.failure(URLError(.badURL)))
+            return
+        }
+
+        performRequest(url: url) { (result: Result<FilmsSearchResponse, Error>) in
+            switch result {
+            case .success(let response):
+                completion(.success(response.docs))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func getMoviesByGenres(genres: [String], completion: @escaping (Result<[Film], Error>) -> Void ) {
+        guard !genres.isEmpty else {
+            completion(.success([]))
+            return
+        }
+
+        let masOfGenres = genres.map { nameOfParamGenresName + "=" + $0 }
+        let separatedMasOfGenres = masOfGenres.joined(separator: "&")
+
+        let urlString = "\(baseUrl)?limit=\(filmsCountPerPage)&\(separatedMasOfGenres)"
+        guard let url = URL(string: urlString) else {
             completion(.failure(URLError(.badURL)))
             return
         }

@@ -94,4 +94,23 @@ class SearchViewModel {
             }
         }
     }
+
+    func searchFilmsByGenres(genres: [String]) {
+        guard !isLoading else { return }
+        isLoading = true
+
+        searchService.getMoviesByGenres(genres: genres) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                switch result {
+                case .success(let films):
+                    self?.films = films
+                    self?.delegate?.updateUI(with: films)
+                case .failure(let error):
+                    self?.films = []
+                    self?.delegate?.showErrorAlert(message: "Не удалось загрузить фильмы по жанрам: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
 }
