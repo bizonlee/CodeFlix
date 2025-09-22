@@ -10,8 +10,22 @@ final class FilmItem: UICollectionViewCell {
 
     // MARK: - Private properties
 
-    private let filmCover = UIImageView()
-    private let filmTitle = UILabel()
+    private let filmCover: UIImageView = {
+        let cover = UIImageView()
+        cover.contentMode = .scaleAspectFit
+        
+
+        return cover
+    }()
+    private let filmTitle: UILabel = {
+        let title = UILabel()
+        title.font = .systemFont(ofSize: 15, weight: .medium)
+        title.textColor = .white
+        title.numberOfLines = 0
+        title.textAlignment = .center
+        
+        return title
+    }()
 
     var onTap: (() -> Void)?
 
@@ -21,32 +35,34 @@ final class FilmItem: UICollectionViewCell {
         contentView.addSubview(filmTitle)
     }
 
-    func configure(title: String, image: UIImage?) {
+    func configure(title: String, imageURL: String) {
         filmTitle.text = title
-        filmCover.image = image
-        filmCover.contentMode = .scaleAspectFit
+
+
+        ImageService.shared.loadImage(from: imageURL) { [weak self] image in
+            self?.filmCover.image = image ?? UIImage(named: "placeholder")
+        }
+
+
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        filmCover.frame = .init(origin:
-                .init(
-                    x: 0,
-                    y: 0),
-                                size:
-                .init(
-                    width: contentView.frame.width,
-                    height: 100))
-        filmTitle.frame = .init(origin:
-                .init(
-                    x: 0,
-                    y: filmCover.frame.height),
-                                size:
-                .init(
-                    width: 40,
-                    height: 50))
+        filmCover.frame = .init(
+            origin: .init(
+                x: contentView.bounds.minX,
+                y: contentView.bounds.minY),
+            size: .init(
+                width: contentView.bounds.width,
+                height: contentView.bounds.height - 30))
 
-        //filmTitle.center = contentView.center
+        filmTitle.frame = .init(
+            origin: .init(
+                x: contentView.bounds.minX,
+                y: filmCover.frame.maxY),
+            size: .init(
+                width: contentView.bounds.width,
+                height: 30))
     }
 
 
@@ -56,8 +72,4 @@ final class FilmItem: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-
-////////////////
-
 }
