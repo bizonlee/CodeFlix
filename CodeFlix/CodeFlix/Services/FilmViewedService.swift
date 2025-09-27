@@ -21,25 +21,25 @@ protocol FilmViewedManagerProtocol {
 }
 
 final class FilmViewedManager {
-    private let viewedKey = "viewed"
-    private let forWatchingKey = "forWatching"
+    private let viewedKeyId = "viewed"
+    private let forWatchingKeyId = "forWatching"
     private let watchedTimeKey = "totalTime"
-    private let forWatchingTotalKey = "totalFutureTime"
+    private let forWatchingTimeKey = "totalFutureTime"
     private let userDefaults: UserDefaults = .standard
 
-    private func viewedKey(for filmId: Int) -> String {
-        return "\(viewedKey)\(filmId)"
+    private func viewedKeyId(for filmId: Int) -> String {
+        return "\(viewedKeyId)\(filmId)"
     }
 
-    private func forWatchingKey(for filmId: Int) -> String {
-        return "\(forWatchingKey)\(filmId)"
+    private func forWatchingKeyId(for filmId: Int) -> String {
+        return "\(forWatchingKeyId)\(filmId)"
     }
 }
 
 extension FilmViewedManager: FilmViewedManagerProtocol {
     
     func removeFilmFromViewed(with filmId: Int, _ duration: Int) {
-        userDefaults.removeObject(forKey: viewedKey(for: filmId))
+        userDefaults.removeObject(forKey: viewedKeyId(for: filmId))
         
         let totalTime = userDefaults.integer(forKey: watchedTimeKey)
         userDefaults.set(totalTime - duration, forKey: watchedTimeKey)
@@ -48,11 +48,11 @@ extension FilmViewedManager: FilmViewedManagerProtocol {
     }
 
     func isViewed(with filmId: Int) -> Bool {
-        userDefaults.bool(forKey: viewedKey(for: filmId))
+        userDefaults.bool(forKey: viewedKeyId(for: filmId))
     }
 
     func markFilmAsViewed(with filmId: Int, _ duration: Int) {
-        userDefaults.set(true, forKey: viewedKey(for: filmId))
+        userDefaults.set(true, forKey: viewedKeyId(for: filmId))
 
         let totalTime = userDefaults.integer(forKey: watchedTimeKey)
         userDefaults.set(totalTime + duration, forKey: watchedTimeKey)
@@ -61,37 +61,37 @@ extension FilmViewedManager: FilmViewedManagerProtocol {
     }
 
     func markForWatching(with filmId: Int, _ duration: Int) {
-        userDefaults.set(true, forKey: forWatchingKey(for: filmId))
+        userDefaults.set(true, forKey: forWatchingKeyId(for: filmId))
 
-        let totalTime = userDefaults.integer(forKey: forWatchingTotalKey)
-        userDefaults.set(totalTime + duration, forKey: forWatchingTotalKey)
+        let totalTime = userDefaults.integer(forKey: forWatchingTimeKey)
+        userDefaults.set(totalTime + duration, forKey: forWatchingTimeKey)
         print("Всего собираюсь посмотреть добавил")
-        print(userDefaults.integer(forKey: forWatchingKey))
+        print(userDefaults.integer(forKey: forWatchingKeyId))
     }
 
     func removeFilmFromWatchLater(with filmId: Int, _ duration: Int) {
-        userDefaults.removeObject(forKey: forWatchingKey(for: filmId))
+        userDefaults.removeObject(forKey: forWatchingKeyId(for: filmId))
 
-        let totalTime = userDefaults.integer(forKey: forWatchingKey)
-        userDefaults.set(totalTime - duration, forKey: forWatchingKey)
+        let totalTime = userDefaults.integer(forKey: forWatchingKeyId)
+        userDefaults.set(totalTime - duration, forKey: forWatchingKeyId)
         print("Всего собираюсь посмотреть удалил")
-        print(userDefaults.integer(forKey: forWatchingKey))
+        print(userDefaults.integer(forKey: forWatchingKeyId))
     }
 
     func isMarkedForWatching(with filmId: Int) -> Bool {
-        userDefaults.bool(forKey: forWatchingKey(for: filmId))
+        userDefaults.bool(forKey: forWatchingKeyId(for: filmId))
     }
 
     func getViewedFilmIds() -> [Int] {
         return userDefaults.dictionaryRepresentation().keys
-            .filter { $0.hasPrefix(viewedKey) && userDefaults.bool(forKey: $0) }
-            .compactMap { Int($0.replacingOccurrences(of: viewedKey, with: "")) }
+            .filter { $0.hasPrefix(viewedKeyId) && userDefaults.bool(forKey: $0) }
+            .compactMap { Int($0.replacingOccurrences(of: viewedKeyId, with: "")) }
     }
 
     func getForWatchingFilmIds() -> [Int] {
         return userDefaults.dictionaryRepresentation().keys
-            .filter { $0.hasPrefix(forWatchingKey) && userDefaults.bool(forKey: $0) }
-            .compactMap { Int($0.replacingOccurrences(of: forWatchingKey, with: "")) }
+            .filter { $0.hasPrefix(forWatchingKeyId) && userDefaults.bool(forKey: $0) }
+            .compactMap { Int($0.replacingOccurrences(of: forWatchingKeyId, with: "")) }
     }
 
     func getFavoritesIds() -> [Int] {
@@ -106,7 +106,7 @@ extension FilmViewedManager: FilmViewedManagerProtocol {
     }
 
     func getTotalForWatchingTime() -> Int {
-        print(userDefaults.integer(forKey: forWatchingKey))
-        return userDefaults.integer(forKey: forWatchingKey)
+        print(userDefaults.integer(forKey: forWatchingTimeKey))
+        return userDefaults.integer(forKey: forWatchingTimeKey)
     }
 }

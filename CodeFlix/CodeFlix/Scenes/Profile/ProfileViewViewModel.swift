@@ -45,6 +45,6 @@ class ProfileViewViewModel: ObservableObject {
             return "0"
         }
         progress = Double(watchedTime) / Double(totalTime)
-        return String(format: "%.1f", progress * 100)
+        return String(format: "%.0f%%", progress * 100)
     }
 }

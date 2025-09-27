@@ -8,7 +8,7 @@
 import SwiftUI
 import UIKit
 
-final class ProfileVC: UIViewController {
+final class ProfileVC: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
