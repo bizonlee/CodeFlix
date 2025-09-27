@@ -14,11 +14,10 @@ protocol Cancellable {
 class ImageService {
     static let shared = ImageService()
 
-    private let cache: NSCache<NSURL, UIImage> = NSCache<NSURL, UIImage>()
+    private let cache: ImageCacheDescription
 
-    private init() {
-        cache.countLimit = 100
-        cache.totalCostLimit = 50 * 1024 * 1024
+    private init(cache: ImageCacheDescription = ImageCache.shared) {
+        self.cache = cache
     }
 
     func loadImage(from urlString: String?, completion: @escaping (UIImage?) -> Void) -> URLSessionDataTask? {
@@ -27,7 +26,8 @@ class ImageService {
             return nil
         }
 
-        if let cachedImage = cache.object(forKey: url as NSURL) {
+        if let cachedImageData = cache.obtain(with: url.absoluteString),
+            let cachedImage = UIImage(data: cachedImageData) {
             completion(cachedImage)
             return nil
         }
@@ -42,7 +42,7 @@ class ImageService {
                 return
             }
 
-            cache.setObject(image, forKey: url as NSURL)
+            cache.store(data, with: url.absoluteString)
 
             DispatchQueue.main.async {
                 completion(image)
