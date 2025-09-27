@@ -11,6 +11,9 @@ import CryptoKit
 protocol ImageCacheDescription {
     func obtain(with key: String) -> Data?
     func store(_ data: Data, with key: String)
+    func getSize() -> UInt64
+    func clear(completion: @escaping () -> Void)
+    func fileLists() -> [CacheFileInfo]
 }
 
 final class ImageCache: ImageCacheDescription {
@@ -53,6 +56,55 @@ final class ImageCache: ImageCacheDescription {
         }
 
 
+    }
+
+    func getSize() -> UInt64 {
+        guard
+            let files = try? fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: [.fileSizeKey])
+            else {
+            return .zero
+        }
+
+        var totalSize: UInt64 = 0
+
+
+        files.forEach({ url in
+            guard let fileSize = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize else {
+                return
+            }
+            totalSize += UInt64(fileSize)
+        })
+
+        return totalSize
+    }
+
+    func clear(completion: @escaping () -> Void) {
+        ioQueue.async(flags: .barrier) {
+            try? self.fileManager.removeItem(at: self.directoryURL)
+            try? self.fileManager.createDirectory(at: self.directoryURL, withIntermediateDirectories: true)
+        }
+
+        DispatchQueue.main.async {
+            completion()
+        }
+    }
+
+    func fileLists() -> [CacheFileInfo] {
+        guard
+            let files = try? fileManager.contentsOfDirectory(
+                at: directoryURL,
+                includingPropertiesForKeys: [.fileSizeKey]
+            ) else {
+            return []
+        }
+
+        return files.compactMap({ url -> CacheFileInfo? in
+            guard let fileSize = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize else {
+                return nil
+            }
+
+            return CacheFileInfo(url: url, size: UInt64(fileSize))
+        })
     }
 }
 
