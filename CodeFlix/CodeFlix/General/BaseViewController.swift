@@ -44,6 +44,7 @@ class BaseViewController: UIViewController {
     }
 
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         setupBanner()
         checkNetworkStatus()
     }
