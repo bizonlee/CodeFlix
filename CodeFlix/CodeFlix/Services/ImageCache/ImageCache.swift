@@ -82,10 +82,11 @@ final class ImageCache: ImageCacheDescription {
         ioQueue.async(flags: .barrier) {
             try? self.fileManager.removeItem(at: self.directoryURL)
             try? self.fileManager.createDirectory(at: self.directoryURL, withIntermediateDirectories: true)
-        }
-
-        DispatchQueue.main.async {
-            completion()
+            
+            
+            DispatchQueue.main.async {
+                completion()
+            }
         }
     }
 
