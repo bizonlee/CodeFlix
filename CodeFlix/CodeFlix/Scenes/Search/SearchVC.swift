@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class SearchVC: UIViewController {
+final class SearchVC: BaseViewController {
 
     private lazy var factory = FilmActionsFactory(filmViewedManager: filmViewedManager)
 
@@ -44,6 +44,7 @@ final class SearchVC: UIViewController {
         tableView.register(FilmCell.self, forCellReuseIdentifier: "FilmCell")
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 200
+        tableView.keyboardDismissMode = .onDrag
         return tableView
     }()
 
@@ -62,7 +63,7 @@ final class SearchVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Поиск"
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         viewModel.delegate = self
         setupViews()
         setupConstraints()

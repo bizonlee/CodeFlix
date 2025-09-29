@@ -6,7 +6,7 @@
 //
 import UIKit
 
-final class FavoriteVC: UIViewController {
+final class FavoriteVC: BaseViewController {
 
     private let viewModel = SearchViewModel()
     private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
