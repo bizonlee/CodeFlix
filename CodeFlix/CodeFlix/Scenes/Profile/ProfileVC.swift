@@ -8,7 +8,7 @@
 import SwiftUI
 import UIKit
 
-final class ProfileVC: UIViewController {
+final class ProfileVC: BaseViewController {
 
     private lazy var settingsButton: UIBarButtonItem = {
         let button = UIBarButtonItem(
@@ -21,20 +21,6 @@ final class ProfileVC: UIViewController {
         return button
     }()
 
-
-final class ProfileVC: BaseViewController {
-
-      private lazy var settingsButton: UIBarButtonItem = {
-        let button = UIBarButtonItem(
-            image: UIImage(systemName: "gearshape"),
-            style: .plain,
-            target: self,
-            action: #selector(openSettings)
-        )
-        button.tintColor = .secondaryLabel
-        return button
-    }()
-  
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()

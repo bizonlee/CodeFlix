@@ -27,15 +27,6 @@ final class SearchVC: BaseViewController {
         return textField
     }()
 
-    private lazy var searchButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Search", for: .normal)
-        button.setTitleColor(.blue, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(searchButtonTapped), for: .touchUpInside)
-        return button
-    }()
-
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -77,25 +68,20 @@ final class SearchVC: BaseViewController {
 
     private func setupViews() {
         view.addSubview(searchTextField)
-        view.addSubview(searchButton)
         view.addSubview(tableView)
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            searchTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -100),
+            searchTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 140),
+            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            searchTextField.heightAnchor.constraint(equalToConstant: 40),
 
-            searchButton.topAnchor.constraint(equalTo: searchTextField.topAnchor),
-            searchButton.leadingAnchor.constraint(equalTo: searchTextField.trailingAnchor, constant: 10),
-            searchButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            searchButton.bottomAnchor.constraint(equalTo: searchTextField.bottomAnchor),
-
-            tableView.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
+            tableView.topAnchor.constraint(equalTo: searchTextField.bottomAnchor, constant: 20),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)//,
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
 
