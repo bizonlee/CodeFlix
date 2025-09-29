@@ -103,6 +103,14 @@ extension FavoriteVC: SearchViewModelDelegate {
         tableView.reloadData()
         emptyStateLabel.isHidden = !films.isEmpty
     }
+
+    func didStartLoadingMore() {
+        tableView.reloadData()
+    }
+
+    func didFinishLoadingMore() {
+        tableView.reloadData()
+    }
 }
 
 extension FavoriteVC: FilmCellDelegate {

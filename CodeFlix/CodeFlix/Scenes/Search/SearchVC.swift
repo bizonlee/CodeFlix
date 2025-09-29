@@ -42,6 +42,7 @@ final class SearchVC: BaseViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(FilmCell.self, forCellReuseIdentifier: "FilmCell")
+        tableView.register(LoadingCell.self, forCellReuseIdentifier: "LoadingCell")
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 200
         tableView.keyboardDismissMode = .onDrag
@@ -77,25 +78,20 @@ final class SearchVC: BaseViewController {
 
     private func setupViews() {
         view.addSubview(searchTextField)
-        view.addSubview(searchButton)
         view.addSubview(tableView)
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            searchTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -100),
+            searchTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 120),
+            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            searchTextField.heightAnchor.constraint(equalToConstant: 44),
 
-            searchButton.topAnchor.constraint(equalTo: searchTextField.topAnchor),
-            searchButton.leadingAnchor.constraint(equalTo: searchTextField.trailingAnchor, constant: 10),
-            searchButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            searchButton.bottomAnchor.constraint(equalTo: searchTextField.bottomAnchor),
-
-            tableView.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
+            tableView.topAnchor.constraint(equalTo: searchTextField.bottomAnchor, constant: 20),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)//,
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 
@@ -123,10 +119,18 @@ final class SearchVC: BaseViewController {
 
 extension SearchVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.films.count
+        //return viewModel.films.count
+        return viewModel.totalItems
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+        if indexPath.row == viewModel.films.count && viewModel.shouldShowLoadingCell {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "LoadingCell", for: indexPath) as! LoadingCell
+            cell.startAnimating()
+            return cell
+        }
+
         let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
         let film = viewModel.films[indexPath.row]
         let cellViewModel = FilmCellViewModel(film: film)
@@ -137,13 +141,22 @@ extension SearchVC: UITableViewDataSource {
 
 extension SearchVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let lastElement = viewModel.films.count - 1
-        if indexPath.row == lastElement, let query = searchTextField.text, !query.isEmpty {
-            viewModel.searchFilms(query: query, isNewSearch: false)
+        if indexPath.row == viewModel.films.count && viewModel.shouldShowLoadingCell {
+            if let query = searchTextField.text, !query.isEmpty {
+                viewModel.searchFilms(query: query, isNewSearch: false)
+            }
         }
+
         if let filmCell = cell as? FilmCell {
             filmCell.delegate = self
         }
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.row == viewModel.films.count && viewModel.shouldShowLoadingCell {
+            return 80 // Высота для ячейки с индикатором
+        }
+        return UITableView.automaticDimension
     }
 }
 
@@ -156,11 +169,22 @@ extension SearchVC: SearchViewModelDelegate {
     func updateUI(with films: [Film]) {
         tableView.reloadData()
     }
+
+    func didStartLoadingMore() {
+        tableView.reloadData()
+    }
+
+    func didFinishLoadingMore() {
+        tableView.reloadData()
+    }
 }
 
 extension SearchVC {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
+        guard indexPath.row < viewModel.films.count else { return }
+
         let film = viewModel.films[indexPath.row]
         let filmVC = FilmVC(film: film)
         navigationController?.pushViewController(filmVC, animated: true)

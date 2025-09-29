@@ -10,6 +10,8 @@ import UIKit
 protocol SearchViewModelDelegate: AnyObject {
     func updateUI(with films: [Film])
     func showErrorAlert(message: String)
+    func didStartLoadingMore()
+    func didFinishLoadingMore()
 }
 
 class SearchViewModel {
@@ -23,6 +25,18 @@ class SearchViewModel {
     private var currentPage = 1
     private var isLoading = false
     private var hasMore = true
+
+    var totalItems: Int {
+        return films.count + (shouldShowLoadingCell ? 1 : 0)
+    }
+
+    var shouldShowLoadingCell: Bool {
+        return isLoading && hasMore && !films.isEmpty
+    }
+
+    var isLoadingMore: Bool {
+        return isLoading
+    }
 
     func searchFilms(query: String, isNewSearch: Bool = true) {
         guard !query.isEmpty else {
@@ -40,10 +54,12 @@ class SearchViewModel {
         guard !isLoading && hasMore else { return }
 
         isLoading = true
+        delegate?.didStartLoadingMore()
 
         searchService.searchMovies(query: query, page: currentPage) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
+                self?.delegate?.didFinishLoadingMore()
 
                 switch result {
                 case .success(let newFilms):
