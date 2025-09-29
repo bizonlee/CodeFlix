@@ -59,9 +59,7 @@ final class MainVC: UIViewController, UICollectionViewDelegate {
         super.viewDidLayoutSubviews()
 
         titleBanner.frame = .init(
-            origin: .init(
-                x: 0,
-                y: 0),
+            origin: .zero,
             size: .init(
                 width: view.bounds.width,
                 height: 180))
@@ -114,14 +112,13 @@ extension MainVC {
         var grouped: [[Film]] = []
 
         for genre in genres {
-                let filmsForGenre = films.filter { film in
-                    guard let filmGenres = film.genres else { return false }
-                    return filmGenres.contains { $0.name == genre }
-                }
-                grouped.append(filmsForGenre)
+            let filmsForGenre = films.filter { film in
+                guard let filmGenres = film.genres else { return false }
+                return filmGenres.contains { $0.name == genre }
             }
-
-            groupedFilms = grouped
+            grouped.append(filmsForGenre)
+        }
+        groupedFilms = grouped
     }
 }
 

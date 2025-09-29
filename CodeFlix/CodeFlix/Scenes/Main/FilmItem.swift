@@ -13,8 +13,6 @@ final class FilmItem: UICollectionViewCell {
     private let filmCover: UIImageView = {
         let cover = UIImageView()
         cover.contentMode = .scaleAspectFit
-        
-
         return cover
     }()
     private let filmTitle: UILabel = {
@@ -27,7 +25,7 @@ final class FilmItem: UICollectionViewCell {
         return title
     }()
 
-    var onTap: (() -> Void)?
+    private var onTap: (() -> Void)?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,21 +35,16 @@ final class FilmItem: UICollectionViewCell {
 
     func configure(title: String, imageURL: String) {
         filmTitle.text = title
-
-
         ImageService.shared.loadImage(from: imageURL) { [weak self] image in
             self?.filmCover.image = image ?? UIImage(named: "placeholder")
         }
-
-
     }
 
+    // MARK: - Setup Layout
     override func layoutSubviews() {
         super.layoutSubviews()
         filmCover.frame = .init(
-            origin: .init(
-                x: contentView.bounds.minX,
-                y: contentView.bounds.minY),
+            origin: .zero,
             size: .init(
                 width: contentView.bounds.width,
                 height: contentView.bounds.height - 30))
@@ -64,10 +57,6 @@ final class FilmItem: UICollectionViewCell {
                 width: contentView.bounds.width,
                 height: 30))
     }
-
-
-
-
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
