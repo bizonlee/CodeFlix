@@ -41,6 +41,9 @@ final class FavoriteVC: BaseViewController {
         setupViews()
         FilmNotificationCenter.shared.addObserver(self)
         viewModel.fetchFilmsByIds()
+
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
     }
 
     deinit {
@@ -57,11 +60,10 @@ final class FavoriteVC: BaseViewController {
         view.addSubview(emptyStateLabel)
 
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 140),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             emptyStateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyStateLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
