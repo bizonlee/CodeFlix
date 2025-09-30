@@ -301,8 +301,8 @@ final class FilmVC: UIViewController {
             filmCountriesAndLength.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
 
             actionBar.topAnchor.constraint(equalTo: filmCountriesAndLength.bottomAnchor, constant: 20),
-            actionBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 50),
-            actionBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -50),
+            actionBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30),
+            actionBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30),
 
             filmDescription.topAnchor.constraint(equalTo: actionBar.bottomAnchor, constant: 30),
             filmDescription.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
