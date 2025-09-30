@@ -3,7 +3,7 @@ import UIKit
 final class MainVC: UIViewController, UICollectionViewDelegate {
 
     private let viewModel = SearchViewModel()
-    private let genres = ["комедии", "ужасы"]
+    private let genres = ["ужасы", "комедия"]
     private var responseFilm: [Film] = []
     private var groupedFilms: [[Film]] = []
 
@@ -11,7 +11,7 @@ final class MainVC: UIViewController, UICollectionViewDelegate {
 
     private lazy var titleBanner: UIImageView = {
         let banner = UIImageView()
-        banner.image = UIImage(named: "MainBanner")
+        banner.image = .mainTitleBanner
         banner.contentMode = .scaleAspectFill
         return banner
     }()
@@ -41,8 +41,8 @@ final class MainVC: UIViewController, UICollectionViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.backgroundColor = UIColor(red: 0/255, green: 74/255, blue: 110/255, alpha: 1.0)
-        view.backgroundColor = UIColor(red: 0/255, green: 74/255, blue: 110/255, alpha: 1.0)
+        collectionView.backgroundColor = .mainBackgroundColor
+        view.backgroundColor = .mainBackgroundColor
 
         collectionView.delegate = self
 
