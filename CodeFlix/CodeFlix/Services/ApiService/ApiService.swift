@@ -13,6 +13,7 @@ class ApiService {
     private let apiKey = "EGPARVP-T1C4CP0-PJCZ9SE-6TH4NVG"
     private let baseUrl = "https://api.kinopoisk.dev/v1.3/movie"
     private let filmsCountPerPage: Int = 10
+    private let countOfFilmsForMainSection: Int = 10
 
     private func performRequest<T: Decodable>(url: URL, completion: @escaping (Result<T, Error>) -> Void) {
         var request = URLRequest(url: url)
@@ -104,6 +105,52 @@ class ApiService {
                 completion(.success(response.docs))
             case .failure(let error):
                 completion(.failure(error))
+            }
+        }
+    }
+
+    func getMoviesByGenres(genres: [String], completion: @escaping (Result<[Film], Error>) -> Void ) {
+        guard !genres.isEmpty else {
+            completion(.success([]))
+            return
+        }
+
+        var result: [Film] = []
+        let group = DispatchGroup()
+        var requestError: Error?
+
+        for genre in genres {
+            guard var urlComponent = URLComponents(string: baseUrl) else {
+                completion(.failure(URLError(.badURL)))
+                return
+            }
+            urlComponent.queryItems = [
+                URLQueryItem(name: "limit", value: "\(countOfFilmsForMainSection)"),
+                URLQueryItem(name: "genres.name", value: genre)
+            ]
+
+            guard let url = urlComponent.url else {
+                completion(.failure(URLError(.badURL)))
+                return
+            }
+
+            group.enter()
+            performRequest(url: url) { (res: Result<FilmsSearchResponse, Error>) in
+                switch res {
+                case .success(let response):
+                    result.append(contentsOf: response.docs)
+                case .failure(let error):
+                    requestError = error
+                }
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) {
+            if let error = requestError {
+                completion(.failure(error))
+            } else {
+                completion(.success(result))
             }
         }
     }

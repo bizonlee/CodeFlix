@@ -17,7 +17,7 @@ final class TabBarController: UITabBarController {
         setupUI()
         setupTabBars()
 
-        selectedIndex = 2
+        selectedIndex = 0
     }
     
     // MARK: - Setup
