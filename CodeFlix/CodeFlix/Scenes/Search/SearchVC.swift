@@ -94,7 +94,7 @@ final class SearchVC: BaseViewController {
     @objc
     private func searchButtonTapped() {
         guard let query = searchController.searchBar.text, !query.isEmpty else {
-            viewModel.fetchPopularFilms()
+            searchBarCancelButtonClicked(searchController.searchBar)
             return
         }
         viewModel.searchFilms(query: query)
@@ -117,12 +117,15 @@ final class SearchVC: BaseViewController {
 extension SearchVC: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         viewModel.fetchPopularFilms()
+        tableView.setContentOffset(.zero, animated: true)
     }
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        tableView.setContentOffset(.zero, animated: true)
         searchTimer?.invalidate()
         searchButtonTapped()
         searchController.searchBar.resignFirstResponder()
+        tableView.setContentOffset(.zero, animated: true)
     }
 }
 
