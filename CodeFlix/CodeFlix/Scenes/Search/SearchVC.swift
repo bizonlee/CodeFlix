@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class SearchVC: UIViewController {
+final class SearchVC: BaseViewController {
 
     private lazy var factory = FilmActionsFactory(filmViewedManager: filmViewedManager)
 
@@ -16,24 +16,20 @@ final class SearchVC: UIViewController {
     private var searchTimer: Timer?
     private let debounceInterval: TimeInterval = 0.5
 
-    private lazy var searchTextField: UISearchTextField = {
-        let textField = UISearchTextField()
-        textField.placeholder = "Search..."
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.layer.cornerRadius = 8.0
-        textField.layer.masksToBounds = true
-        textField.layer.borderWidth = 1.0
-        textField.addTarget(self, action: #selector(searchTextFieldDidChange), for: .editingChanged)
-        return textField
-    }()
+    private lazy var searchController: UISearchController = {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchBar.placeholder = "Search..."
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchBar.delegate = self
+        searchController.searchBar.searchTextField.addTarget(
+            self,
+            action: #selector(searchTextFieldDidChange),
+            for: .editingChanged
+        )
+        searchController.automaticallyShowsSearchResultsController = false
 
-    private lazy var searchButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Search", for: .normal)
-        button.setTitleColor(.blue, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(searchButtonTapped), for: .touchUpInside)
-        return button
+        return searchController
     }()
 
     private lazy var tableView: UITableView = {
@@ -44,71 +40,68 @@ final class SearchVC: UIViewController {
         tableView.register(FilmCell.self, forCellReuseIdentifier: "FilmCell")
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 200
+        tableView.keyboardDismissMode = .onDrag
         return tableView
     }()
 
     // TODO: - вернуть когда во вьюмодели добавится признак пустого поиска
-//    private lazy var noResultsLabel: UILabel = {
-//        let label = UILabel()
-//        label.text = "Нет результатов"
-//        label.textColor = .white
-//        label.textAlignment = .center
-//        label.font = UIFont.systemFont(ofSize: 16)
-//        label.translatesAutoresizingMaskIntoConstraints = false
-//        label.isHidden = true
-//        return label
-//    }()
+    //    private lazy var noResultsLabel: UILabel = {
+    //        let label = UILabel()
+    //        label.text = "Нет результатов"
+    //        label.textColor = .white
+    //        label.textAlignment = .center
+    //        label.font = UIFont.systemFont(ofSize: 16)
+    //        label.translatesAutoresizingMaskIntoConstraints = false
+    //        label.isHidden = true
+    //        return label
+    //    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Поиск"
-        view.backgroundColor = .white
+        setupNavigationBar()
+        view.backgroundColor = .systemBackground
         viewModel.delegate = self
         setupViews()
         setupConstraints()
         FilmNotificationCenter.shared.addObserver(self)
         viewModel.fetchPopularFilms()
+        edgesForExtendedLayout = []
     }
 
     deinit {
         FilmNotificationCenter.shared.removeObserver(self)
     }
 
+    private func setupNavigationBar() {
+        title = "Поиск"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
+    }
+
     private func setupViews() {
-        view.addSubview(searchTextField)
-        view.addSubview(searchButton)
         view.addSubview(tableView)
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            searchTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -100),
-
-            searchButton.topAnchor.constraint(equalTo: searchTextField.topAnchor),
-            searchButton.leadingAnchor.constraint(equalTo: searchTextField.trailingAnchor, constant: 10),
-            searchButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            searchButton.bottomAnchor.constraint(equalTo: searchTextField.bottomAnchor),
-
-            tableView.topAnchor.constraint(equalTo: searchButton.bottomAnchor, constant: 20),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)//,
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 
     @objc
     private func searchButtonTapped() {
-        guard let query = searchTextField.text, !query.isEmpty else {
-            viewModel.fetchPopularFilms()
+        guard let query = searchController.searchBar.text, !query.isEmpty else {
+            searchBarCancelButtonClicked(searchController.searchBar)
             return
         }
         viewModel.searchFilms(query: query)
     }
 
     @objc
-    private func searchTextFieldDidChange(_ textField: UISearchTextField) {
+    private func searchTextFieldDidChange(_ textField: UITextField) {
         searchTimer?.invalidate()
         searchTimer = Timer.scheduledTimer(
             timeInterval: debounceInterval,
@@ -117,6 +110,22 @@ final class SearchVC: UIViewController {
             userInfo: nil,
             repeats: false
         )
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension SearchVC: UISearchBarDelegate {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        viewModel.fetchPopularFilms()
+        tableView.setContentOffset(.zero, animated: true)
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        tableView.setContentOffset(.zero, animated: true)
+        searchTimer?.invalidate()
+        searchButtonTapped()
+        searchController.searchBar.resignFirstResponder()
+        tableView.setContentOffset(.zero, animated: true)
     }
 }
 
@@ -137,15 +146,25 @@ extension SearchVC: UITableViewDataSource {
 extension SearchVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastElement = viewModel.films.count - 1
-        if indexPath.row == lastElement, let query = searchTextField.text, !query.isEmpty {
-            viewModel.searchFilms(query: query, isNewSearch: false)
+        if indexPath.row == lastElement {
+            if let query = searchController.searchBar.text, !query.isEmpty {
+                viewModel.searchFilms(query: query, isNewSearch: false)
+            } else {
+                viewModel.fetchPopularFilms()
+            }
         }
         if let filmCell = cell as? FilmCell {
             filmCell.delegate = self
         }
     }
-}
 
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let film = viewModel.films[indexPath.row]
+        let filmVC = FilmVC(film: film)
+        navigationController?.pushViewController(filmVC, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
 
 extension SearchVC: SearchViewModelDelegate {
     func showErrorAlert(message: String) {
@@ -154,17 +173,6 @@ extension SearchVC: SearchViewModelDelegate {
 
     func updateUI(with films: [Film]) {
         tableView.reloadData()
-    }
-}
-
-extension SearchVC {
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let film = viewModel.films[indexPath.row]
-        let filmVC = FilmVC(film: film)
-        navigationController?.pushViewController(filmVC, animated: true)
-        
-        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 

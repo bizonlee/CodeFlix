@@ -10,29 +10,41 @@ import Foundation
 class ProfileViewViewModel: ObservableObject {
     private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
 
-    @Published var watchedTime: Int = 0
-    @Published var forWatchingTime: Int = 0
-    @Published var progress: Double = 0
+    @Published var watchedTimeString: String = ""
+    @Published var forWatchingTimeString: String = ""
     @Published var progressPercentage: String = "0"
-    @Published var remainingTime: Int = 0
-    @Published var totalTime: Int = 0
+    @Published var remainingTimeString: String = ""
+    @Published var totalTimeString: String = ""
+    @Published var progress = 0.0
+    @Published var wathedTimeText = ""
+    @Published var remainingTimeText = ""
+    @Published var totalTimeText = ""
+    @Published var fromTotalText = ""
 
     func loadTimeInfo() {
-        watchedTime = filmViewedManager.getTotalWatchedTime()
-        forWatchingTime = filmViewedManager.getTotalForWatchingTime()
-        totalTime = watchedTime + forWatchingTime
-        remainingTime = totalTime - watchedTime
-        progress = Double(watchedTime) / Double(totalTime)
-        progressPercentage = calculateProgress()
+        let watchedTime = filmViewedManager.getTotalWatchedTime()
+        let forWatchingTime = filmViewedManager.getTotalForWatchingTime()
+
+        watchedTimeString = formatMinutesToTimeString(watchedTime)
+        forWatchingTimeString = formatMinutesToTimeString(forWatchingTime)
+
+        let totalTime = watchedTime + forWatchingTime
+        totalTimeString = formatMinutesToTimeString(totalTime)
+
+        remainingTimeString = formatMinutesToTimeString(totalTime - watchedTime)
+        progressPercentage = calculateProgress(watchedTime: watchedTime, totalTime: totalTime)
+
+        wathedTimeText = "Просмотрено \(watchedTimeString)"
+        remainingTimeText = "Осталось \(remainingTimeString)"
+        totalTimeText = "Всего \(totalTimeString)"
+        fromTotalText = "Из \(totalTimeString)"
     }
 
-    func calculateProgress() -> String {
+    private func calculateProgress(watchedTime: Int, totalTime: Int) -> String {
         guard totalTime > 0 else {
             return "0"
         }
         progress = Double(watchedTime) / Double(totalTime)
-        progressPercentage = String(format: "%.1f", progress * 100)
-        return progressPercentage
+        return String(format: "%.0f%%", progress * 100)
     }
 }
-

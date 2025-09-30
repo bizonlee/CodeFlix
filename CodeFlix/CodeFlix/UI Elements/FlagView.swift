@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class FlagView: UIView {
+final class FlagView:  UIView {
 
     private let shapeLayer: CAShapeLayer = {
         let layer = CAShapeLayer()

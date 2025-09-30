@@ -20,6 +20,8 @@ class ApiService {
         request.httpMethod = "GET"
         request.addValue(apiKey, forHTTPHeaderField: "X-API-KEY")
 
+        print("ЗАПРОС ПОШЕЛ")
+
         URLSession.shared.dataTask(with: request) { data, _, error in
             if let error = error {
                 completion(.failure(error))

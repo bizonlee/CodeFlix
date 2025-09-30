@@ -6,7 +6,7 @@
 //
 import UIKit
 
-final class FavoriteVC: UIViewController {
+final class FavoriteVC: BaseViewController {
 
     private let viewModel = SearchViewModel()
     private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
@@ -41,6 +41,7 @@ final class FavoriteVC: UIViewController {
         setupViews()
         FilmNotificationCenter.shared.addObserver(self)
         viewModel.fetchFilmsByIds()
+        edgesForExtendedLayout = []
     }
 
     deinit {
@@ -57,11 +58,10 @@ final class FavoriteVC: UIViewController {
         view.addSubview(emptyStateLabel)
 
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             emptyStateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyStateLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
