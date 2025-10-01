@@ -8,5 +8,5 @@ import UIKit
 
 extension UIImage {
 
-    static let mainTitleBanner = UIImage(named: "MainBanner")
+    
 }
