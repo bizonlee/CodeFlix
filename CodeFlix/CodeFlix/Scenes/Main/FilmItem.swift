@@ -18,7 +18,7 @@ final class FilmItem: UICollectionViewCell {
     private let filmTitle: UILabel = {
         let title = UILabel()
         title.font = .systemFont(ofSize: 15, weight: .medium)
-        title.textColor = .white
+        title.textColor = .label
         title.numberOfLines = 0
         title.textAlignment = .center
         
