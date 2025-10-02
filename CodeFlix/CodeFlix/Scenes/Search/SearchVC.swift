@@ -9,8 +9,11 @@ import UIKit
 
 final class SearchVC: BaseViewController {
 
-    private lazy var factory = FilmActionsFactory(filmViewedManager: filmViewedManager)
+    private enum Section {
+        case films
+    }
 
+    private lazy var factory = FilmActionsFactory(filmViewedManager: filmViewedManager)
     private let viewModel = SearchViewModel()
     private let filmViewedManager: FilmViewedManagerProtocol = FilmViewedManager()
     private var searchTimer: Timer?
@@ -28,14 +31,12 @@ final class SearchVC: BaseViewController {
             for: .editingChanged
         )
         searchController.automaticallyShowsSearchResultsController = false
-
         return searchController
     }()
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.dataSource = self
         tableView.delegate = self
         tableView.register(FilmCell.self, forCellReuseIdentifier: "FilmCell")
         tableView.rowHeight = UITableView.automaticDimension
@@ -44,17 +45,15 @@ final class SearchVC: BaseViewController {
         return tableView
     }()
 
-    // TODO: - вернуть когда во вьюмодели добавится признак пустого поиска
-    //    private lazy var noResultsLabel: UILabel = {
-    //        let label = UILabel()
-    //        label.text = "Нет результатов"
-    //        label.textColor = .white
-    //        label.textAlignment = .center
-    //        label.font = UIFont.systemFont(ofSize: 16)
-    //        label.translatesAutoresizingMaskIntoConstraints = false
-    //        label.isHidden = true
-    //        return label
-    //    }()
+    private lazy var dataSource: UITableViewDiffableDataSource<Section, Film> = {
+        let dataSource = UITableViewDiffableDataSource<Section, Film>(tableView: tableView) { tableView, indexPath, film in
+            let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
+            let cellViewModel = FilmCellViewModel(film: film)
+            cell.configure(with: cellViewModel)
+            return cell
+        }
+        return dataSource
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,6 +63,7 @@ final class SearchVC: BaseViewController {
         setupViews()
         setupConstraints()
         FilmNotificationCenter.shared.addObserver(self)
+        tableView.dataSource = dataSource
         viewModel.fetchPopularFilms()
         edgesForExtendedLayout = []
     }
@@ -111,6 +111,13 @@ final class SearchVC: BaseViewController {
             repeats: false
         )
     }
+
+    private func applySnapshot(animatingDifferences: Bool = false) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Film>()
+        snapshot.appendSections([.films])
+        snapshot.appendItems(viewModel.films, toSection: .films)
+        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+    }
 }
 
 // MARK: - UISearchBarDelegate
@@ -129,28 +136,12 @@ extension SearchVC: UISearchBarDelegate {
     }
 }
 
-extension SearchVC: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.films.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
-        let film = viewModel.films[indexPath.row]
-        let cellViewModel = FilmCellViewModel(film: film)
-        cell.configure(with: cellViewModel)
-        return cell
-    }
-}
-
 extension SearchVC: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let lastElement = viewModel.films.count - 1
         if indexPath.row == lastElement {
             if let query = searchController.searchBar.text, !query.isEmpty {
                 viewModel.searchFilms(query: query, isNewSearch: false)
-            } else {
-                viewModel.fetchPopularFilms()
             }
         }
         if let filmCell = cell as? FilmCell {
@@ -159,10 +150,11 @@ extension SearchVC: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let film = viewModel.films[indexPath.row]
-        let filmVC = FilmVC(film: film)
-        navigationController?.pushViewController(filmVC, animated: true)
-        tableView.deselectRow(at: indexPath, animated: true)
+        if let film = dataSource.itemIdentifier(for: indexPath) {
+            let filmVC = FilmVC(film: film)
+            navigationController?.pushViewController(filmVC, animated: true)
+            tableView.deselectRow(at: indexPath, animated: true)
+        }
     }
 }
 
@@ -172,7 +164,7 @@ extension SearchVC: SearchViewModelDelegate {
     }
 
     func updateUI(with films: [Film]) {
-        tableView.reloadData()
+        applySnapshot(animatingDifferences: false)
     }
 }
 
