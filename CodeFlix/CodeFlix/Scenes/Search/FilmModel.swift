@@ -5,7 +5,7 @@
 //  Created by Zhdanov Konstantin on 07.08.2025.
 //
 
-struct Film: Decodable {
+struct Film: Decodable, Hashable {
     let id: Int
     let title: String
     let year: Int?
@@ -33,15 +33,15 @@ struct Film: Decodable {
     }
 }
 
-struct Poster: Decodable {
+struct Poster: Decodable, Hashable {
     let url: String?
 }
 
-struct Countries: Decodable {
+struct Countries: Decodable, Hashable {
     let name: String
 }
 
-struct Genres: Decodable {
+struct Genres: Decodable, Hashable {
     let name: String
 }
 
@@ -49,6 +49,6 @@ struct FilmsSearchResponse: Decodable {
     let docs: [Film]
 }
 
-struct Rating: Decodable {
+struct Rating: Decodable, Hashable {
     let imdb: Double?
 }

@@ -11,7 +11,7 @@ class FilmCellLayout {
     private enum Constants {
         static let imageWidth: CGFloat = 100
         static let imageHeight: CGFloat = 150
-        static let padding: CGFloat = 12
+        static let padding: CGFloat = 20
         static let buttonSize: CGFloat = 24
         static let textSpacing: CGFloat = 8
         static let minCellHeight: CGFloat = 170
