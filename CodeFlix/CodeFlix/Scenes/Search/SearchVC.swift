@@ -77,6 +77,7 @@ final class SearchVC: BaseViewController {
         tableView.dataSource = dataSource
         viewModel.fetchPopularFilms()
         edgesForExtendedLayout = []
+        setupCopiedLink()
     }
 
     deinit {
@@ -204,6 +205,24 @@ extension SearchVC: FilmObserver {
             if let index = self.viewModel.films.firstIndex(where: { $0.id == film.id }) {
                 let indexPath = IndexPath(row: index, section: 0)
                 self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        }
+    }
+}
+
+private extension SearchVC {
+    func setupCopiedLink() {
+        factory.onCopyLinkTap = { [weak self] in
+            guard let self = self else { return }
+            let alert = UIAlertController(
+                title: "Ссылка скопирована",
+                message: nil,
+                preferredStyle: .alert)
+
+            self.present(alert, animated: true) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    alert.dismiss(animated: true, completion: nil)
+                }
             }
         }
     }
