@@ -15,12 +15,22 @@ final class FavoriteVC: BaseViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.dataSource = self
         tableView.delegate = self
         tableView.register(FilmCell.self, forCellReuseIdentifier: "FilmCell")
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 200
         return tableView
+    }()
+
+    private lazy var dataSource: UITableViewDiffableDataSource<Int, Film> = {
+        let dataSource = UITableViewDiffableDataSource<Int, Film>(tableView: tableView) { tableView, indexPath, film in
+            let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
+            let cellViewModel = FilmCellViewModel(film: film)
+            cell.configure(with: cellViewModel)
+            cell.delegate = self
+            return cell
+        }
+        return dataSource
     }()
 
     private lazy var emptyStateLabel: UILabel = {
@@ -39,6 +49,7 @@ final class FavoriteVC: BaseViewController {
         viewModel.delegate = self
         title = "Избранное"
         setupViews()
+        tableView.dataSource = dataSource
         FilmNotificationCenter.shared.addObserver(self)
         viewModel.fetchFilmsByIds()
         edgesForExtendedLayout = []
@@ -66,22 +77,21 @@ final class FavoriteVC: BaseViewController {
             emptyStateLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
-}
 
-extension FavoriteVC: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let count = viewModel.films.count
-        emptyStateLabel.isHidden = count > 0
-        return count
+    private func applySnapshot(animatingDifferences: Bool = true) {
+        var snapshot = NSDiffableDataSourceSnapshot<Int, Film>()
+        snapshot.appendSections([0])
+        snapshot.appendItems(viewModel.films)
+        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+        emptyStateLabel.isHidden = !viewModel.films.isEmpty
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
-        let film = viewModel.films[indexPath.row]
-        let cellViewModel = FilmCellViewModel(film: film)
-        cell.configure(with: cellViewModel)
-        cell.delegate = self
-        return cell
+    func reloadFilm(_ film: Film) {
+        guard let index = viewModel.films.firstIndex(where: { $0.id == film.id }) else { return }
+        viewModel.films[index] = film
+        var snapshot = dataSource.snapshot()
+        snapshot.reloadItems([film])
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 }
 
@@ -100,19 +110,16 @@ extension FavoriteVC: SearchViewModelDelegate {
     }
 
     func updateUI(with films: [Film]) {
-        tableView.reloadData()
-        emptyStateLabel.isHidden = !films.isEmpty
+        viewModel.films = films
+        applySnapshot()
     }
 }
 
 extension FavoriteVC: FilmCellDelegate {
     func filmCellDidTapMenu(_ cell: FilmCell, film: Film, sourceView: UIView) {
         factory.onReload = { [weak self] film in
-            guard let self else { return }
-            if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {
-                let indexPath = IndexPath(row: index, section: 0)
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+            guard let self = self else { return }
+            self.reloadFilm(film)
         }
         let controller = factory.makeMenuController(for: film, sourceView: sourceView)
         present(controller, animated: true)
@@ -125,10 +132,7 @@ extension FavoriteVC: FilmObserver {
             if !FilmViewedManager().isViewed(with: film.id) && !FilmViewedManager().isMarkedForWatching(with: film.id) {
                 self.viewModel.fetchFilmsByIds()
             } else {
-                if let index = self.viewModel.films.firstIndex(where: { $0.id == film.id }) {
-                    let indexPath = IndexPath(row: index, section: 0)
-                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
-                }
+                self.reloadFilm(film)
             }
         }
     }
