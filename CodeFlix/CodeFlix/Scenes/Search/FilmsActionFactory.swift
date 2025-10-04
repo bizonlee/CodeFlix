@@ -9,6 +9,7 @@ import UIKit
 
 final class FilmActionsFactory {
     var onReload: ((Film) -> Void)?
+    var onCopyLinkTap: (() -> Void)?
     private let filmViewedManager: FilmViewedManagerProtocol
 
     init(filmViewedManager: FilmViewedManagerProtocol) {
@@ -37,7 +38,7 @@ final class FilmActionsFactory {
         }
 
         let shareAction = UIAlertAction(
-            title: "Поделиться",
+            title: "Копировать ссылку",
             style: .default
         ) { [weak self] _ in
             self?.shareTapped(for: film)
@@ -86,6 +87,9 @@ final class FilmActionsFactory {
     }
 
     private func shareTapped(for film: Film) {
-        print("Поделиться: \(film.title)")
+        let movieLink = "https://www.kinopoisk.ru/film/\(film.id)"
+        UIPasteboard.general.string = movieLink
+
+        onCopyLinkTap?()
     }
 }

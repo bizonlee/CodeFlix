@@ -132,7 +132,6 @@ enum FilmActionsType: CaseIterable {
     case like
     case watchLater
     case share
-    case more
 
     var title: String {
         switch self {
@@ -142,8 +141,6 @@ enum FilmActionsType: CaseIterable {
             "Буду смотреть"
         case .share:
             "Поделиться"
-        case .more:
-            "Ещё"
         }
     }
 
@@ -155,8 +152,6 @@ enum FilmActionsType: CaseIterable {
             UIImage(systemName: "bookmark") ?? UIImage()
         case .share:
             UIImage(systemName: "square.and.arrow.up") ?? UIImage()
-        case .more:
-            UIImage(systemName: "ellipsis") ?? UIImage()
         }
     }
 
@@ -168,8 +163,6 @@ enum FilmActionsType: CaseIterable {
             UIImage(systemName: "bookmark.fill") ?? UIImage()
         case .share:
             UIImage(systemName: "square.and.arrow.up") ?? UIImage()
-        case .more:
-            UIImage(systemName: "ellipsis") ?? UIImage()
         }
     }
 }

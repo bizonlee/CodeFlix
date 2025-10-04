@@ -186,10 +186,6 @@ final class FilmVC: UIViewController {
                 button.onTap = { [weak self] in
                     self?.shareTapped()
                 }
-            case .more:
-                button.onTap = { [weak self] in
-                    self?.moreTapped()
-                }
             }
 
             actionBar.addArrangedSubview(button)
@@ -229,14 +225,14 @@ final class FilmVC: UIViewController {
 
     @objc
     private func shareTapped() {
-        print("Share tapped")
+        var items: [Any] = []
 
-    }
+        let shareText = "https://www.kinopoisk.ru/film/\(self.film.id)"
+        items.append(shareText)
 
-    @objc
-    func moreTapped() {
-        print("More tapped")
+        let shareVC = UIActivityViewController(activityItems: items, applicationActivities: nil)
 
+        present(shareVC, animated: true)
     }
 
     // MARK: - Setup Description
