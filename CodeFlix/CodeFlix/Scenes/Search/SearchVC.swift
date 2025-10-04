@@ -45,6 +45,17 @@ final class SearchVC: BaseViewController {
         return tableView
     }()
 
+    private lazy var noResultsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "По вашему запросу фильмов не найдено"
+        label.textAlignment = .center
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 18, weight: .medium)
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     private lazy var dataSource: UITableViewDiffableDataSource<Section, Film> = {
         let dataSource = UITableViewDiffableDataSource<Section, Film>(tableView: tableView) { tableView, indexPath, film in
             let cell = tableView.dequeueReusableCell(withIdentifier: "FilmCell", for: indexPath) as! FilmCell
@@ -80,6 +91,7 @@ final class SearchVC: BaseViewController {
 
     private func setupViews() {
         view.addSubview(tableView)
+        view.addSubview(noResultsLabel)
     }
 
     private func setupConstraints() {
@@ -87,7 +99,10 @@ final class SearchVC: BaseViewController {
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            noResultsLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            noResultsLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
 
@@ -165,6 +180,7 @@ extension SearchVC: SearchViewModelDelegate {
 
     func updateUI(with films: [Film]) {
         applySnapshot(animatingDifferences: false)
+        noResultsLabel.isHidden = !films.isEmpty
     }
 }
 
