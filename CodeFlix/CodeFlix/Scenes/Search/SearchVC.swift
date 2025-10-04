@@ -132,10 +132,18 @@ final class SearchVC: BaseViewController {
         snapshot.appendSections([.films])
         snapshot.appendItems(viewModel.films, toSection: .films)
         dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+        noResultsLabel.isHidden = !viewModel.films.isEmpty
+    }
+
+    private func updateFilmInSnapshot(_ film: Film) {
+        guard let index = viewModel.films.firstIndex(where: { $0.id == film.id }) else { return }
+        viewModel.films[index] = film
+        var snapshot = dataSource.snapshot()
+        snapshot.reloadItems([film])
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 }
 
-// MARK: - UISearchBarDelegate
 extension SearchVC: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         viewModel.fetchPopularFilms()
@@ -188,10 +196,7 @@ extension SearchVC: FilmCellDelegate {
     func filmCellDidTapMenu(_ cell: FilmCell, film: Film, sourceView: UIView) {
         factory.onReload = { [weak self] film in
             guard let self else { return }
-            if let index = viewModel.films.firstIndex(where: { $0.id == film.id }) {
-                let indexPath = IndexPath(row: index, section: 0)
-                tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+            self.updateFilmInSnapshot(film)
         }
         let controller = factory.makeMenuController(for: film, sourceView: sourceView)
         present(controller, animated: true)
@@ -201,10 +206,7 @@ extension SearchVC: FilmCellDelegate {
 extension SearchVC: FilmObserver {
     func filmDidUpdate(_ film: Film) {
         DispatchQueue.main.async {
-            if let index = self.viewModel.films.firstIndex(where: { $0.id == film.id }) {
-                let indexPath = IndexPath(row: index, section: 0)
-                self.tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+            self.updateFilmInSnapshot(film)
         }
     }
 }
