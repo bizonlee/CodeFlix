@@ -111,14 +111,18 @@ class FilmCell: UITableViewCell {
         titleLabel.text = viewModel.film.title
         releaseDateLabel.text = viewModel.film.year.map { String($0) } ?? ""
         ratingLabel.text = viewModel.film.rating.imdb.map { String($0) } ?? ""
-        previewImageView.image = nil
-        let currentUrl = viewModel.film.poster?.url
 
-        viewModel.loadImage { [weak self] image in
+        let posterUrl = viewModel.film.poster?.url
 
-            DispatchQueue.main.async {
-                if currentUrl == self?.viewModel?.film.poster?.url {
-                    self?.previewImageView.image = image
+        previewImageView.image = UIImage(named: "new_launch_image")
+
+        if let posterUrl = posterUrl, !posterUrl.isEmpty {
+            viewModel.loadImage { [weak self] image in
+                DispatchQueue.main.async {
+                    if posterUrl == self?.viewModel?.film.poster?.url {
+
+                        self?.previewImageView.image = image ?? UIImage(named: "new_launch_image")
+                    }
                 }
             }
         }
