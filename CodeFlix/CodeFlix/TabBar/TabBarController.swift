@@ -39,8 +39,8 @@ final class TabBarController: UITabBarController {
         
         viewControllers = [
             mainViewController,
-            favoriteViewController,
             searchViewController,
+            favoriteViewController,
             profileViewController
         ]
     }
