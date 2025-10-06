@@ -110,9 +110,16 @@ class FilmCell: UITableViewCell {
 
         titleLabel.text = viewModel.film.title
         releaseDateLabel.text = viewModel.film.year.map { String($0) } ?? ""
-        ratingLabel.text = viewModel.film.rating.kp.map {
-            String(format: "%.1f", $0)
-        } ?? ""
+//        ratingLabel.text = viewModel.film.rating.kp.map {
+//            String(format: "%.1f", $0)
+//        } ?? ""
+
+
+        if let rating = viewModel.film.rating.kp, rating > 0.0 {
+            ratingLabel.text = String(format: "%.1f", rating)
+        } else {
+            ratingLabel.text = "" 
+        }
 
         let posterUrl = viewModel.film.poster?.url
 

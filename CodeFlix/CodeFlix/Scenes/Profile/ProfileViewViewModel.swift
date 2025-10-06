@@ -23,15 +23,15 @@ class ProfileViewViewModel: ObservableObject {
 
     func loadTimeInfo() {
         let watchedTime = filmViewedManager.getTotalWatchedTime()
-        let forWatchingTime = filmViewedManager.getTotalForWatchingTime()
+        let adjustedForWatchingTime = filmViewedManager.getAdjustedForWatchingTime()
 
         watchedTimeString = formatMinutesToTimeString(watchedTime)
-        forWatchingTimeString = formatMinutesToTimeString(forWatchingTime)
+        forWatchingTimeString = formatMinutesToTimeString(adjustedForWatchingTime)
 
-        let totalTime = watchedTime + forWatchingTime
+        let totalTime = watchedTime + adjustedForWatchingTime
         totalTimeString = formatMinutesToTimeString(totalTime)
 
-        remainingTimeString = formatMinutesToTimeString(totalTime - watchedTime)
+        remainingTimeString = formatMinutesToTimeString(adjustedForWatchingTime)
         progressPercentage = calculateProgress(watchedTime: watchedTime, totalTime: totalTime)
 
         wathedTimeText = "Просмотрено \(watchedTimeString)"
@@ -46,5 +46,16 @@ class ProfileViewViewModel: ObservableObject {
         }
         progress = Double(watchedTime) / Double(totalTime)
         return String(format: "%.0f%%", progress * 100)
+    }
+
+    private func formatMinutesToTimeString(_ minutes: Int) -> String {
+        let hours = minutes / 60
+        let remainingMinutes = minutes % 60
+
+        if hours > 0 {
+            return "\(hours)ч \(remainingMinutes)м"
+        } else {
+            return "\(remainingMinutes)м"
+        }
     }
 }
