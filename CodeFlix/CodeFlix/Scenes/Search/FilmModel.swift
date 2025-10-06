@@ -50,5 +50,6 @@ struct FilmsSearchResponse: Decodable {
 }
 
 struct Rating: Decodable, Hashable {
-    let imdb: Double?
+    //let imdb: Double?
+    let kp: Double?
 }
